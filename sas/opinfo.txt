@@ -1,0 +1,63 @@
+//
+// Copyright (C) 2022, UChicago Argonne, LLC. All rights reserved.
+//
+// OPEN SOURCE LICENSE
+// 
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+// 
+// 
+// ******************************************************************************************************
+// DISCLAIMER
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// ***************************************************************************************************
+// 
+#ifndef OPINFO
+#error "Macro OPINFO must be defined first."
+#endif
+//
+OPINFO(OP_COMMA,         1,    ",",      Comma,          0)
+OPINFO(OP_ASSIGN,        2,    ":=",     Assignment,     0)
+OPINFO(OP_EQN,           2,    "=",      Assignment,     2)
+OPINFO(OP_COLON,         3,    ":",      Array,          0)
+
+OPINFO(OP_OR,            4,    "or",     Binary,         2)
+OPINFO(OP_AND,           5,    "and",    Binary,         2)
+OPINFO(OP_BITOR,         6,    "|",      Binary,         2)
+OPINFO(OP_BITAND,        8,    "&",      Binary,         2)
+OPINFO(OP_NOT,           9,    "not",    Unary,          1)
+OPINFO(OP_EQUAL,         10,   "==",     Binary,         2)
+OPINFO(OP_UNEQUAL,       10,   "<>",     Binary,         2)
+OPINFO(OP_GREAT,         10,   ">",      Binary,         2)
+OPINFO(OP_LESS,          10,   "<",      Binary,         2)
+OPINFO(OP_GREAT_EQ,      10,   ">=",     Binary,         2)
+OPINFO(OP_LESS_EQ,       10,   "<=",     Binary,         2)
+OPINFO(OP_DOTADD,        11,   ".+",     Binary,         2)
+OPINFO(OP_DOTSUB,        11,   ".-",     Binary,         2)
+OPINFO(OP_ADD,           11,   "+",      Binary,         2)
+OPINFO(OP_SUB,           11,   "-",      Binary,         2)
+OPINFO(OP_POS,           11,   "+",      Unary,          1)
+OPINFO(OP_MINUS,         11,   "-",      Unary,          1)
+OPINFO(OP_DOTMUL,        12,   ".*",     Binary,         2)
+OPINFO(OP_DOTDIV,        12,   "./",     Binary,         2)
+OPINFO(OP_MUL,           12,   "*",      Binary,         2)
+OPINFO(OP_DIV,           12,   "/",      Binary,         2)
+OPINFO(OP_POW,           13,   "^",      Binary,         2)
+OPINFO(OP_DOTPOW,        13,   ".^",     Binary,         2)
+OPINFO(OP_CALL,          14,   "call",   Postfix,        2)
+OPINFO(OP_MEMBER,        15,   ".",      Postfix,        0)
+OPINFO(OP_INDEX,         16,   "[]",     Postfix,        0)
+OPINFO(OP_ID,            16,   "id",     Primary,        1)
+OPINFO(OP_CONST,         16,   "const",  Primary,        1)
+OPINFO(OP_STR,           16,   "str",    Primary,        0)
+OPINFO(OP_NONE,          17,   "nop",    Error,          0)

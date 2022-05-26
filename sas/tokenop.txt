@@ -1,0 +1,57 @@
+//
+// Copyright (C) 2022, UChicago Argonne, LLC. All rights reserved.
+//
+// OPEN SOURCE LICENSE
+// 
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+// 
+// 
+// ******************************************************************************************************
+// DISCLAIMER
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// ***************************************************************************************************
+// 
+#ifndef TOKENOP
+#error "Macro TOKENOP must be defined first."
+#endif
+
+// NOTE: must be in the same order with token.txt
+
+TOKENOP(TK_ADD,          OP_ADD,  OP_POS)
+TOKENOP(TK_SUB,          OP_SUB,  OP_MINUS)
+TOKENOP(TK_MUL,          OP_MUL,  OP_NONE)
+TOKENOP(TK_DIV,          OP_DIV,  OP_NONE)
+TOKENOP(TK_EXCLAMATION,  OP_NONE,  OP_NONE)
+TOKENOP(TK_CARET,        OP_POW,  OP_NONE)
+TOKENOP(TK_PERCENT,      OP_NONE,  OP_NONE)
+TOKENOP(TK_EQN,          OP_EQN,  OP_NONE)
+TOKENOP(TK_EQUAL,        OP_EQUAL,  OP_NONE)
+TOKENOP(TK_UNEQ,         OP_UNEQUAL,  OP_NONE)
+TOKENOP(TK_BITAND,       OP_NONE,  OP_NONE)
+TOKENOP(TK_BITOR,        OP_NONE,  OP_NONE)
+TOKENOP(TK_AND,          OP_NONE,  OP_NONE)
+TOKENOP(TK_OR,           OP_NONE,  OP_NONE)
+TOKENOP(TK_GE,           OP_GREAT_EQ,  OP_NONE)
+TOKENOP(TK_LE,           OP_LESS_EQ,  OP_NONE)
+TOKENOP(TK_GREAT,        OP_GREAT,  OP_NONE)
+TOKENOP(TK_LESS,         OP_LESS,  OP_NONE)
+TOKENOP(TK_DOTADD,       OP_DOTADD,  OP_NONE)
+TOKENOP(TK_DOTSUB,       OP_DOTSUB,  OP_NONE)
+TOKENOP(TK_DOTMUL,       OP_DOTMUL,  OP_NONE)
+TOKENOP(TK_DOTDIV,       OP_DOTDIV,  OP_NONE)
+TOKENOP(TK_DOTPOW,       OP_DOTPOW,  OP_NONE)
+TOKENOP(TK_ASSIGN,       OP_ASSIGN,  OP_NONE)
+TOKENOP(TK_K_AND,        OP_AND,  OP_NONE)
+TOKENOP(TK_K_OR,         OP_OR,  OP_NONE)
+TOKENOP(TK_K_NOT,        OP_NONE,  OP_NOT)

@@ -1,0 +1,157 @@
+//
+// Copyright (C) 2022, UChicago Argonne, LLC. All rights reserved.
+//
+// OPEN SOURCE LICENSE
+// 
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+// 
+// 
+// ******************************************************************************************************
+// DISCLAIMER
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// ***************************************************************************************************
+// 
+#ifndef TOKEN
+#error "Macro TOKEN must be defined first."
+#endif
+
+TOKEN(TK_NA,"")
+TOKEN(TK_ID,"id")
+TOKEN(TK_EOF,"EOF")
+TOKEN(TK_COMMA,",")
+TOKEN(TK_LPAREN,"(")
+TOKEN(TK_RPAREN,")")
+TOKEN(TK_LBRACKET,"[")
+TOKEN(TK_RBRACKET,"]")
+TOKEN(TK_LBRACE,"{")
+TOKEN(TK_RBRACE,"}")
+TOKEN(TK_SEMICOLON,";")
+TOKEN(TK_QUESTION,"?")
+TOKEN(TK_POUND,"#")
+TOKEN(TK_DOLLAR,"$")
+TOKEN(TK_AT,"@")
+TOKEN(TK_COLON,":")
+TOKEN(TK_DOT,".")
+
+//Start of operators
+TOKEN(TK_ADD,"+")
+TOKEN(TK_SUB,"-")
+TOKEN(TK_MUL,"*")
+TOKEN(TK_DIV,"/")
+TOKEN(TK_EXCLAMATION,"!")
+TOKEN(TK_CARET,"^")
+TOKEN(TK_PERCENT,"%")
+
+TOKEN(TK_EQN,"=")
+TOKEN(TK_EQUAL,"==")
+TOKEN(TK_UNEQ,"<>")
+TOKEN(TK_BITAND,"&")
+TOKEN(TK_BITOR,"|")
+TOKEN(TK_AND,"&&")
+TOKEN(TK_OR,"||")
+TOKEN(TK_GE,">=")
+TOKEN(TK_LE,"<=")
+TOKEN(TK_GREAT,">")
+TOKEN(TK_LESS,"<")
+
+TOKEN(TK_DOTADD,".+")
+TOKEN(TK_DOTSUB,".-")
+TOKEN(TK_DOTMUL,".*")
+TOKEN(TK_DOTDIV,"./")
+TOKEN(TK_DOTPOW,".^")
+TOKEN(TK_ASSIGN,":=")
+
+TOKEN(TK_K_AND,"and")
+TOKEN(TK_K_OR,"or")
+TOKEN(TK_K_NOT,"not")
+//End of operators
+
+TOKEN(TK_INTCONST,"int")
+TOKEN(TK_LONGCONST,"long")
+TOKEN(TK_FLOATCONST,"floar")
+TOKEN(TK_DOUBLECONST,"double")
+TOKEN(TK_REALCONST,"real")
+TOKEN(TK_STRING,"STR")
+
+TOKEN(TK_K_REAL,"Real")
+TOKEN(TK_K_VAR,"var")
+TOKEN(TK_K_IVAR,"ivar")
+
+TOKEN(TK_K_ALGORITHM,"algorithm")
+//TOKEN(TK_K_AND,"and")
+TOKEN(TK_K_ANNOTATION,"annotation")
+TOKEN(TK_K_BLOCK,"block")
+TOKEN(TK_K_BREAK,"break")
+TOKEN(TK_K_CLASS,"class")
+TOKEN(TK_K_CONNECT,"connect")
+TOKEN(TK_K_CONNECTOR,"connector")
+TOKEN(TK_K_CONSTANT,"constant")
+TOKEN(TK_K_CONSTRAINEDBY,"constrainedby")
+TOKEN(TK_K_DISCRETE,"discrete")
+TOKEN(TK_K_EACH,"each")
+TOKEN(TK_K_ELSE,"else")
+TOKEN(TK_K_ELSEIF,"elseif")
+TOKEN(TK_K_ELSEWHEN,"elsewhen")
+TOKEN(TK_K_ENCAPSULATED,"encapsulated")
+TOKEN(TK_K_END,"end")
+TOKEN(TK_K_ENUMERATION,"enumeration")
+TOKEN(TK_K_EQN,"equation")
+TOKEN(TK_K_EXPANDABLE,"expandable")
+TOKEN(TK_K_EXTENDS,"extends")
+TOKEN(TK_K_EXTERNAL,"external")
+TOKEN(TK_K_FALSE,"false")
+TOKEN(TK_K_FINAL,"final")
+TOKEN(TK_K_FLOW,"flow")
+TOKEN(TK_K_FOR,"for")
+TOKEN(TK_K_FUNCTION,"function")
+TOKEN(TK_K_IF,"if")
+TOKEN(TK_K_IMPORT,"import")
+TOKEN(TK_K_IMPURE,"impure")
+TOKEN(TK_K_IN,"in")
+TOKEN(TK_K_INIT,"initial")
+TOKEN(TK_K_INNER,"inner")
+TOKEN(TK_K_INPUT,"input")
+TOKEN(TK_K_LOOP,"loop")
+TOKEN(TK_K_MDL,"model")
+//TOKEN(TK_K_NOT,"not")
+TOKEN(TK_K_OPERATOR,"operator")
+//TOKEN(TK_K_OR,"or")
+TOKEN(TK_K_OUTER,"outer")
+TOKEN(TK_K_OUTPUT,"output")
+TOKEN(TK_K_PACKAGE,"package")
+TOKEN(TK_K_PARA,"parameter")
+TOKEN(TK_K_PARTIAL,"partial")
+TOKEN(TK_K_PROTECTED,"protected")
+TOKEN(TK_K_PUBLIC,"public")
+TOKEN(TK_K_PURE,"pure")
+TOKEN(TK_K_RECORD,"record")
+TOKEN(TK_K_REDECLARE,"redeclare")
+TOKEN(TK_K_REPLACEABLE,"replaceable")
+TOKEN(TK_K_RETURN,"return")
+TOKEN(TK_K_STREAM,"stream")
+TOKEN(TK_K_THEN,"then")
+TOKEN(TK_K_TRUE,"true")
+TOKEN(TK_K_TYPE,"type")
+TOKEN(TK_K_UNIT,"unit")
+TOKEN(TK_K_WHEN,"when")
+TOKEN(TK_K_WHILE,"while")
+TOKEN(TK_K_WITHIN,"within")
+
+TOKEN(TK_F_DER,"der")
+TOKEN(TK_F_SIN,"sin")
+TOKEN(TK_F_COS,"cos")
+TOKEN(TK_F_EXP,"exp")
+TOKEN(TK_F_INV,"inv")
+TOKEN(TK_F_SQRT,"sqrt")
+TOKEN(TK_F_POW,"pow")
