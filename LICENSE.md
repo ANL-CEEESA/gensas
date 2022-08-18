@@ -1,6 +1,6 @@
 Copyright © 2022, UChicago Argonne, LLC
 All Rights Reserved
-Software Name: GenSAS
+Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
 By: Argonne National Laboratory
 
 OPEN SOURCE LICENSE

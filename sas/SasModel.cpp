@@ -1,6 +1,8 @@
 //
 // Copyright (C) 2022, UChicago Argonne, LLC. All rights reserved.
 //
+// Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
+// By: Argonne National Laboratory
 // OPEN SOURCE LICENSE
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
