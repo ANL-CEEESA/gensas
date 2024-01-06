@@ -1,0 +1,82 @@
+load("@rules_cc//cc:defs.bzl", "cc_test","cc_library")
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake", "make", "configure_make")
+
+package(default_visibility = ["//visibility:public"])
+
+cmake(
+    name = "pcre",
+    cache_entries = {
+        "CMAKE_C_FLAGS": "-fPIC",
+    },
+    lib_source = "@pcre//:all_srcs",
+    out_static_libs = ["libpcre.a"],
+)
+
+# Each full make will take about 10 minutes to run
+make(
+    name = "openblas_lib",
+    lib_source = "@openblas//:all_srcs",
+    out_static_libs = ["libopenblas.a"],
+    # experiment to export build data
+    build_data = [
+        "@openblas//:README.md",
+    ],
+    out_data_dirs = ["share"],
+)
+
+cc_library(
+    name = "openblas_lib_bazel",
+    srcs = [],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":openblas_lib",
+    ]
+)
+
+cmake(
+    name = "superlu_lib",
+    cache_entries = {
+        # "CMAKE_INSTALL_PREFIX": ".",
+        # "CMAKE_INSTALL_INCLUDEDIR": "include",
+        # deps ":openblas_lib_bazel" will be copied to "$EXT_BUILD_DEPS"
+        # The directory structure of ":openblas_lib_bazel" are retained,
+        # usually libraries are under /lib and headers are under /include
+        "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/lib/libopenblas.a"
+    },
+    lib_source = "@superlu//:all_srcs",
+    out_static_libs = ["libsuperlu.a"],
+    deps = [
+        # cannot directly use ":openblas_lib",
+        # need bridged through a `cc_library` containing ":openblas_lib"
+        # i.e. ":openblas_lib_bazel"
+        ":openblas_lib_bazel"
+    ],
+    linkopts = ["-lpthread"],
+)
+
+cmake(
+    name = "armadillo_lib",
+    cache_entries = {
+        # "CMAKE_INSTALL_PREFIX": ".",
+        # "CMAKE_INSTALL_INCLUDEDIR": "include",
+        # deps ":openblas_lib_bazel" will be copied to "$EXT_BUILD_DEPS"
+        # The directory structure of ":openblas_lib_bazel" are retained,
+        # usually libraries are under /lib and headers are under /include
+        # "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/lib/libopenblas.a"
+        "BUILD_SHARED_LIBS": "OFF",
+    },
+    lib_source = "@armadillo//:all_srcs",
+    out_static_libs = ["libarmadillo.a"],
+    # out_include_dir = "include",
+    deps = [
+        # cannot directly use ":openblas_lib",
+        # need bridged through a `cc_library` containing ":openblas_lib"
+        # i.e. ":openblas_lib_bazel"
+        ":openblas_lib_bazel"
+    ],
+    linkopts = [
+        # "-lpthread",
+        # "-L$EXT_BUILD_DEPS/lib", "-lopenblas",
+        "-lgfortran",
+        ],
+)
