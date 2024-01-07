@@ -26,8 +26,8 @@
 // 
 #ifndef SAS_LEXICO_H
 #define SAS_LEXICO_H
-#include "SasInput.h"
-#include "SasModel.h"
+#include "sas/SasInput.h"
+#include "sas/SasModel.h"
 #include <memory>
 
 using namespace che::io;
@@ -83,7 +83,7 @@ namespace che {
 			scanner scanners[256];
 			const char* tokenStrings[NUM_TK] = {
 #define TOKEN(k,n) n,
-#include "token.txt"
+#include "sas/token.txt"
 #undef TOKEN
 			};
 

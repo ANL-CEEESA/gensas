@@ -27,7 +27,7 @@
 #ifndef SAS_INPUT_H
 #define SAS_INPUT_H
 
-#include "SasConfig.h"
+#include "sas/SasConfig.h"
 #include "stdio.h"
 #include <ostream>
 

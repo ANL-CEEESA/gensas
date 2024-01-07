@@ -24,8 +24,8 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "CheState.h"
-#include "CheCompUtil.h"
+#include "util/CheState.h"
+#include "util/CheCompUtil.h"
 
 namespace che {
 	namespace util {

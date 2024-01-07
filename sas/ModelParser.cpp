@@ -36,20 +36,20 @@ namespace che {
 
 		static TokenOp tokenOps[]{
 #define TOKENOP(tok, bop, uop) {bop, uop},
-#include "tokenop.txt"
+#include "sas/tokenop.txt"
 			0,
 #undef  TOKENOP
 		};
 
 		static int tokenPrec[]{
 #define OPINFO(op, prec, name, func, opcode) prec,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 #undef OPINFO
 		};
 
 		static const char *opNames[]{
 #define OPINFO(op, prec, name, func, opcode) name,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 			NULL,
 #undef OPINFO
 		};

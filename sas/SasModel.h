@@ -27,7 +27,7 @@
 #ifndef SAS_MODEL_H
 #define SAS_MODEL_H
 
-#include "SasConfig.h"
+#include "sas/SasConfig.h"
 #include <list>
 #include <vector>
 #include <iostream>
@@ -58,7 +58,7 @@ namespace che {
 
 		typedef enum {
 #define TOKEN(k,n) k,
-#include "token.txt"
+#include "sas/token.txt"
 #undef TOKEN
 			NUM_TK,
 		}TokenKind;
@@ -79,7 +79,7 @@ namespace che {
 
 		enum Op {
 #define OPINFO(op, prec, name, func, opcode) op,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 #undef OPINFO
 		};
 

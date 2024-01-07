@@ -24,7 +24,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "SasLexico.h"
+#include "sas/SasLexico.h"
 #include <iostream>
 #include <cstring>
 #include <limits.h>
@@ -268,7 +268,7 @@ namespace che {
 		const char* TokenStrings[] =
 		{
 		#define TOKEN(k, s) s,
-		#include "token.txt"
+		#include "sas/token.txt"
 		#undef  TOKEN
 		};
 

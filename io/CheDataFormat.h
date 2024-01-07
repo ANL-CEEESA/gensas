@@ -32,7 +32,7 @@
 #define M_IDX(x) ((x)+1)
 
 #include <string>
-#include "SafeArmadillo.h"
+#include "util/SafeArmadillo.h"
 #include <map>
 
 using namespace std;

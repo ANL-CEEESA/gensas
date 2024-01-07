@@ -33,6 +33,8 @@ cc_library(
     ]
 )
 
+# There may be a bad symlinked header and the workaround is at:
+# https://github.com/bazelbuild/rules_foreign_cc/issues/1129#issuecomment-1863628259
 cmake(
     name = "superlu_lib",
     cache_entries = {

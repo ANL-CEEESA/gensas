@@ -24,7 +24,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "SasModel.h"
+#include "sas/SasModel.h"
 #include <iostream>
 #include <cstring>
 #include <cstdio>

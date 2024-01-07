@@ -24,7 +24,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "SasLexico.h"
+#include "sas/SasLexico.h"
 #include <iostream>
 #include <cstring>
 #include <cstdio>
@@ -37,7 +37,7 @@ namespace che {
 
 		static const char *opNames[]{
 #define OPINFO(op, prec, name, func, opcode) name,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 			NULL,
 #undef OPINFO
 		};

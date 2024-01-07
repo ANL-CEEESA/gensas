@@ -27,7 +27,7 @@
 #ifndef SAS_EXPR_H
 #define SAS_EXPR_H
 
-#include "SasLexico.h"
+#include "sas/SasLexico.h"
 
 namespace che {
 	namespace core {

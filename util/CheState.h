@@ -27,7 +27,7 @@
 #ifndef _Che_State_H_
 #define _Che_State_H_
 
-#include "CheDataFormat.h"
+#include "io/CheDataFormat.h"
 #include "SafeArmadillo.h"
 
 using namespace arma;

@@ -24,11 +24,8 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "SasComputation.h"
-#include "matio.h"
+#include "sas/SasComputation.h"
 #include <cmath>
-#include <json.h>
-#include <writer.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -42,13 +39,13 @@ namespace che
 
 		static int tokenPrec[]{
 #define OPINFO(op, prec, name, func, opcode) prec,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 #undef OPINFO
 		};
 
 		static int numOperand[]{
 #define OPINFO(op, prec, name, func, opcode) opcode,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 #undef OPINFO
 		};
 
@@ -1519,161 +1516,6 @@ namespace che
 		SasSolutionSet::~SasSolutionSet()
 		{
 			solutionLink.clear();
-		}
-
-		void SasSolutionSet::writeMatFile(const char *fileName, double interval)
-		{
-			if (solutionLink.empty())
-			{
-				return;
-			}
-			double t = 0.0;
-			double maxAlpha = solutionLink.back()->absEnd;
-			vector<vec> vecVec;
-			vector<double> tVec;
-			while (t <= maxAlpha - interval / 100)
-			{
-				list<shared_ptr<SasSolution>> foundSolution = findSasSolution(t);
-				list<shared_ptr<SasSolution>>::iterator sasIt;
-				for (sasIt = foundSolution.begin(); sasIt != foundSolution.end(); sasIt++)
-				{
-					vecVec.push_back((*sasIt)->solution->getSolValue(t - (*sasIt)->absStart));
-					tVec.push_back(t);
-				}
-				t += interval;
-				if (t > maxAlpha)
-				{
-					t = maxAlpha;
-				}
-			}
-			mat solutionMat(vecVec[0].n_rows, vecVec.size(), fill::zeros);
-			for (int i = 0; i < vecVec.size(); i++)
-			{
-				solutionMat.col(i) = vecVec[i];
-			}
-
-			vector<int> iVarVec;
-			// WARNING: Not rigorous, only use the CompModel of the last solution
-			SasComputationModel *linkCompModel = solutionLink.back()->linkCompModel;
-			for (int i = 0; i < linkCompModel->idTable.size(); i++)
-			{
-				if (linkCompModel->idTable[i]->idTy == ID_VAR || linkCompModel->idTable[i]->idTy == ID_IVAR)
-				{
-					if(i<solutionMat.n_rows){
-						iVarVec.push_back(i);
-					}
-				}
-			}
-			solutionMat=solutionMat.rows(conv_to<uvec>::from(iVarVec));
-
-			vec tMat = conv_to<vec>::from(tVec);
-
-			mat_t *matfp;
-			matvar_t *matvar;
-			size_t dims[2] = {1, tMat.n_rows};
-			matfp = Mat_CreateVer(fileName, NULL, MAT_FT_DEFAULT);
-			if (NULL == matfp)
-			{
-				cerr << "Error creating MAT file \"" << fileName << "\"." << endl;
-				return;
-			}
-
-			matvar = Mat_VarCreate("t", MAT_C_DOUBLE, MAT_T_DOUBLE, 2, dims, tMat.memptr(), 0);
-			if (NULL == matvar)
-			{
-				cerr << "Error creating variable for ’t’." << endl;
-			}
-			else
-			{
-				Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_NONE);
-				Mat_VarFree(matvar);
-			}
-
-			dims[0] = solutionMat.n_rows;
-			dims[1] = solutionMat.n_cols;
-			matvar = Mat_VarCreate("s", MAT_C_DOUBLE, MAT_T_DOUBLE, 2, dims, solutionMat.memptr(), 0);
-			if (NULL == matvar)
-			{
-				cerr << "Error creating variable for ’s’." << endl;
-			}
-			else
-			{
-				Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_NONE);
-				Mat_VarFree(matvar);
-			}
-
-			Mat_Close(matfp);
-		}
-
-		void SasSolutionSet::writeMatFile(const char *fileName)
-		{
-		}
-
-		void SasSolutionSet::writeJSONFile(const char *fileName, double interval)
-		{
-			if (solutionLink.empty())
-			{
-				return;
-			}
-			double t = 0.0;
-			double maxAlpha = solutionLink.back()->absEnd;
-			vector<vec> vecVec;
-			vector<double> tVec;
-			while (t <= maxAlpha - interval / 100)
-			{
-				list<shared_ptr<SasSolution>> foundSolution = findSasSolution(t);
-				list<shared_ptr<SasSolution>>::iterator sasIt;
-				for (sasIt = foundSolution.begin(); sasIt != foundSolution.end(); sasIt++)
-				{
-					vecVec.push_back((*sasIt)->solution->getSolValue(t - (*sasIt)->absStart));
-					tVec.push_back(t);
-				}
-				t += interval;
-				if (t > maxAlpha)
-				{
-					t = maxAlpha;
-				}
-			}
-			mat solutionMat(vecVec[1].n_rows, vecVec.size(), fill::zeros);
-			for (int i = 0; i < vecVec.size(); i++)
-			{
-				solutionMat.col(i) = vecVec[i];
-			}
-			vec tMat = conv_to<vec>::from(tVec);
-
-			Json::Value res;
-			Json::Value tVals;
-			for (int i = 0; i < tVec.size(); i++)
-			{
-				tVals.append(Json::Value(tVec[i]));
-			}
-			res["time"] = tVals;
-			// WARNING: Not rigorous, only use the CompModel of the last solution
-			SasComputationModel *linkCompModel = solutionLink.back()->linkCompModel;
-			for (int i = 0; i < linkCompModel->idTable.size(); i++)
-			{
-				if (linkCompModel->idTable[i]->idTy == ID_VAR || linkCompModel->idTable[i]->idTy == ID_IVAR)
-				{
-					Json::Value vVals;
-					for (int j = 0; j < solutionMat.n_cols; j++)
-					{
-						vVals.append(Json::Value(solutionMat(i, j)));
-					}
-					res[(char *)(linkCompModel->idTable[i]->str)] = vVals;
-				}
-			}
-
-			std::ofstream fileWriter;
-			fileWriter.open(fileName);
-
-			Json::StreamWriterBuilder builder;
-			builder["commentStyle"] = "None";
-			builder["indentation"] = "";
-			std::unique_ptr<Json::StreamWriter> writer(
-				builder.newStreamWriter());
-			writer->write(res, &fileWriter);
-			fileWriter << std::endl;
-			fileWriter.close();
 		}
 
 		IdLocator::IdLocator(const std::list<std::shared_ptr<SasModel>> &searchDomain) : searchDomain(searchDomain) {}

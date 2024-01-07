@@ -27,10 +27,10 @@
 #ifndef _Che_Comp_Util_H_
 #define _Che_Comp_Util_H_
 
-#include "CheDataFormat.h"
-#include "CheState.h"
-#include "CheYMatrix.h"
-#include "CheEvents.h"
+#include "io/CheDataFormat.h"
+#include "util/CheState.h"
+#include "util/CheYMatrix.h"
+#include "util/CheEvents.h"
 #include <list>
 #include <vector>
 #include <assert.h>
