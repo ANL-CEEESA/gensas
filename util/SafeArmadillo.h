@@ -27,6 +27,8 @@
 #ifndef _Che_SafeArmadillo_H
 #define _Che_SafeArmadillo_H
 
+#define ARMA_USE_SUPERLU
+
 #include <armadillo>
 
 #endif

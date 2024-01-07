@@ -110,6 +110,8 @@ cc_library(
     ]
 )
 
+# TODO - rygx: verify armadillo works with superlu
+# can be done with a test solving an equation.
 cc_library(
     name = "sas_computation_lib",
     hdrs = [

@@ -27,7 +27,7 @@
 #ifndef _Che_ChePFCalculator_H_
 #define _Che_ChePFCalculator_H_
 
-#include "AbstractCheCalculator.h"
+#include "util/AbstractCheCalculator.h"
 
 using namespace che::util;
 
@@ -72,10 +72,6 @@ namespace che {
 			virtual int calc();
 
 			virtual CheState exportResult();
-
-			virtual void writeMatFile(const char *);
-
-			virtual void writeMatFile(const char *,double);
 
 			virtual ~ChePfCalculator();
 
