@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_test" ,"cc_binary")
 
 # bazel run //:test_openblas
 cc_test(
@@ -34,4 +34,66 @@ cc_test(
         "//:armadillo_lib",
     ],
     linkopts = ["-lpthread"],
+)
+
+cc_binary(
+    name = "test_szcomp",
+    srcs=[
+        "TestSzLib.cc",
+    ],
+    deps = [
+        "//:libaec"
+    ],
+)
+
+cc_binary(
+    name = "test_zlib",
+    srcs=[
+        "TestZlib.cc",
+    ],
+    deps = [
+        "//:z_lib"
+    ],
+)
+
+cc_library(
+    name = "libaec_lib",
+    hdrs = [
+        "TestLibAec.h",
+    ],
+    deps = [
+        "//:libaec",
+    ],
+)
+
+# Still have compiling issue: <config.h>
+cc_test(
+    name = "test_libaec",
+    srcs=[
+        "TestLibAec.cc",
+    ],
+    deps = [
+        ":libaec_lib"
+    ],
+)
+
+cc_binary(
+    name = "test_hdf5_compress",
+    srcs=[
+        "TestHdf5.cc",
+    ],
+    deps = [
+        "//:hdf5_lib"
+    ],
+)
+
+
+cc_binary(
+    name = "run_matio",
+    srcs = [
+        "TestLibMatio.cc",
+    ],
+    deps = [
+        "//:libmatio_lib",
+    ]
 )

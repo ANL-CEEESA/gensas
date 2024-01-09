@@ -71,3 +71,47 @@ http_archive(
     ],
     sha256 = "0052C111E1188737A8B9495FD163D80015D3D8F0AE3D962B16BF74BD29176A23",
 )
+
+#hdf5
+http_archive(
+    name = "hdf5",
+    build_file_content = _ALL_CONTENT ,
+    strip_prefix = "./hdf5-1.14.3",
+    urls = [
+        "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.14/hdf5-1.14.3/src/hdf5-1.14.3.tar.gz"
+    ],
+    sha256 = "09CDB287AA7A89148C1638DD20891FDBAE08102CF433EF128FD345338AA237C7",
+)
+
+#zlib
+http_archive(
+    name = "zlib",
+    build_file_content = _ALL_CONTENT ,
+    strip_prefix = "zlib-1.3",
+    urls = [
+        "https://zlib.net/zlib-1.3.tar.gz"
+    ],
+    sha256 = "FF0BA4C292013DBC27530B3A81E1F9A813CD39DE01CA5E0F8BF355702EFA593E",
+)
+
+#libaec (szlib)
+http_archive(
+    name = "libaec",
+    build_file_content = _ALL_CONTENT ,
+    strip_prefix = "libaec-v1.0.6",
+    urls = [
+        "https://gitlab.dkrz.de/k202009/libaec/-/archive/v1.0.6/libaec-v1.0.6.tar.gz"
+    ],
+    sha256 = "2675D26B24A081CDAAA48E0D085632E568E3F85F843F62B91FC51E1B3F5FE93F",
+)
+
+#libmatio
+http_archive(
+    name = "libmatio",
+    build_file_content = _ALL_CONTENT ,
+    strip_prefix = "matio-1.5.26",
+    urls = [
+        "https://github.com/tbeu/matio/releases/download/v1.5.26/matio-1.5.26.tar.gz"
+    ],
+    sha256 = "8B47C29F58E468DBA7A5555371C6A72AD4C6AA8B15F459B2B0B65A303C063933",
+)
