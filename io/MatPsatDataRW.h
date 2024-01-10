@@ -27,8 +27,8 @@
 #ifndef _Che_MatPsatDataRW_H_
 #define _Che_MatPsatDataRW_H_
 
-#include "che_io_defs.h"
-#include "CheDataFormat.h"
+#include "io/CheIoDefs.h"
+#include "io/CheDataFormat.h"
 
 namespace che {
 	namespace io {

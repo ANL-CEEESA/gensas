@@ -1,6 +1,13 @@
-load("@rules_cc//cc:defs.bzl", "cc_test","cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "che_io_defs_header",
+    hdrs = [
+        "CheIoDefs.h",
+    ],
+)
 
 cc_library(
     name = "che_data_format_lib",
@@ -9,6 +16,50 @@ cc_library(
     ],
     srcs = [
         "CheDataFormat.cpp",
+    ],
+    deps = [
+        "//util:safe_armadillo_headers",
+    ]
+)
+
+cc_library(
+    name = "che_io_util_lib",
+    hdrs = [
+        "CheIoUtil.h",
+    ],
+    srcs = [
+        "CheIoUtil.cpp",
+    ],
+    deps = [
+        ":che_io_defs_header",
+        "//util:safe_armadillo_headers",
+    ]
+)
+
+cc_library(
+    name = "mat_psat_rw_lib",
+    hdrs = [
+        "MatPsatDataRW.h",
+    ],
+    srcs = [
+        "MatPsatDataRW.cpp",
+    ],
+    deps = [
+        ":che_io_defs_header",
+        ":che_data_format_lib",
+        "//:libmatio_lib",
+    ]
+)
+
+cc_library(
+    name = "mat_psat_rw_lib",
+    hdrs = [
+        "MatlabToken.h",
+        "MDataFormat.h",
+        "MDataFormatRW.h",
+    ],
+    srcs = [
+        "MDataFormatRW.cpp",
     ],
     deps = [
         "//util:safe_armadillo_headers",

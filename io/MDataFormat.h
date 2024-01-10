@@ -31,7 +31,7 @@
 #include <map>
 #include <list>
 #include <string>
-#include "SafeArmadillo.h"
+#include "util/SafeArmadillo.h"
 
 using namespace std;
 using namespace arma;

@@ -66,17 +66,6 @@ cc_library(
     ],
 )
 
-# Still have compiling issue: <config.h>
-cc_test(
-    name = "test_libaec",
-    srcs=[
-        "TestLibAec.cc",
-    ],
-    deps = [
-        ":libaec_lib"
-    ],
-)
-
 cc_binary(
     name = "test_hdf5_compress",
     srcs=[

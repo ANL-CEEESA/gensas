@@ -24,7 +24,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "MatPsatDataRW.h"
+#include "io/MatPsatDataRW.h"
 #include "matio.h"
 #include <iostream>
 #include <cmath>
