@@ -76,6 +76,9 @@ cmake(
         # i.e. ":openblas_lib_bazel"
         ":openblas_lib_bazel"
     ],
+    copts =[
+        "-DARMA_DONT_USE_WRAPPER"
+    ],
     linkopts = [
         # "-lpthread",
         # "-L$EXT_BUILD_DEPS/lib", "-lopenblas",
@@ -187,7 +190,7 @@ cmake(
         ],
 )
 
-# Ipopt
+# 
 configure_make(
     name = "libmatio_lib",
     configure_in_place = True,
@@ -208,4 +211,33 @@ configure_make(
     ],
     out_static_libs = ["libmatio.a"],
     linkopts = ["-lpthread"],
+)
+
+cmake(
+    name = "libjsoncpp",
+    cache_entries = {
+        # "CMAKE_INSTALL_PREFIX": ".",
+        # "CMAKE_INSTALL_INCLUDEDIR": "include",
+        # deps ":openblas_lib_bazel" will be copied to "$EXT_BUILD_DEPS"
+        # The directory structure of ":openblas_lib_bazel" are retained,
+        # usually libraries are under /lib and headers are under /include
+        # "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/lib/libopenblas.a"
+        "BUILD_SHARED_LIBS": "OFF",
+    },
+    lib_source = "@jsoncpp//:all_srcs",
+    out_static_libs = [
+        "libjsoncpp.a",
+        ],
+    # out_include_dir = "include",
+    deps = [
+        # cannot directly use ":openblas_lib",
+        # need bridged through a `cc_library` containing ":openblas_lib"
+        # i.e. ":openblas_lib_bazel"
+        # ":openblas_lib_bazel"
+    ],
+    linkopts = [
+        # "-lpthread",
+        # "-L$EXT_BUILD_DEPS/lib", "-lopenblas",
+        # "-lgfortran",
+        ],
 )

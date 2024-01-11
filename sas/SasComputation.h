@@ -77,6 +77,10 @@ namespace che {
 
 			std::shared_ptr<SasSolution> findSasSolution(std::shared_ptr<SasComputationModel>&, double time);
 
+			void writeMatFile(const char* fileName,double interval);
+
+			void writeJSONFile(const char* fileName,double interval);
+
 			virtual ~SasSolutionSet();
 		};
 

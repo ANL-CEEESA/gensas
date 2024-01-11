@@ -86,3 +86,23 @@ cc_binary(
         "//:libmatio_lib",
     ]
 )
+
+cc_binary(
+    name = "run_pctimer",
+    srcs = [
+        "TestPcTimer.cc",
+    ],
+    deps = [
+        "@nvwa//:nvwa_pctimer_headers"
+    ]
+)
+
+cc_binary(
+    name = "test_jsoncpp",
+    srcs = [
+        "TestJsonCpp.cc",
+    ],
+    deps = [
+        "//:libjsoncpp"
+    ]
+)

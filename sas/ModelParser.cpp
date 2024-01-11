@@ -25,8 +25,8 @@
 // ***************************************************************************************************
 // 
 
-#include "SasExpr.h"
-#include "SasLexico.h"
+#include "sas/SasExpr.h"
+#include "sas/SasLexico.h"
 #include <iostream>
 
 using namespace std;

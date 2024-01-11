@@ -49,7 +49,7 @@ namespace che {
 
 				matfp = Mat_Open(filePath, MAT_ACC_RDONLY);
 				if (NULL == matfp) {
-					cerr << "Error opening MAT file \"<<filePath<<\"!" << endl;
+					cerr << "Error opening MAT file \""<<filePath<<"\"!" << endl;
 					return CHE_IO_FAIL;
 				}
 

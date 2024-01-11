@@ -115,3 +115,47 @@ http_archive(
     ],
     sha256 = "8B47C29F58E468DBA7A5555371C6A72AD4C6AA8B15F459B2B0B65A303C063933",
 )
+
+_NVWA_ALL_CONTENT = """\
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "all_srcs",
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "nvwa_pctimer_headers",
+    hdrs = [
+        "//:nvwa/_nvwa.h",
+        "//:nvwa/c++_features.h",
+        "//:nvwa/pctimer.h",
+    ]
+)
+
+"""
+
+#nvwa
+http_archive(
+    name = "nvwa",
+    build_file_content = _NVWA_ALL_CONTENT ,
+    strip_prefix = "nvwa-e3fd40ab2865914d1ebf9fd733cb043d69d06b32",
+    urls = [
+        "https://github.com/adah1972/nvwa/archive/e3fd40ab2865914d1ebf9fd733cb043d69d06b32.tar.gz"
+    ],
+    sha256 = "AE7AD148697564AB95DA70123AE3B2E9D80C124DA13D6103249E2BC869D3A2BB",
+)
+
+#jsoncpp
+http_archive(
+    name = "jsoncpp",
+    build_file_content = _ALL_CONTENT ,
+    strip_prefix = "jsoncpp-1.9.5",
+    urls = [
+        "https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.5.tar.gz"
+    ],
+    sha256 = "F409856E5920C18D0C2FB85276E24EE607D2A09B5E7D5F0A371368903C275DA2",
+)

@@ -48,7 +48,8 @@ cc_library(
         "opinfo.txt",
     ],
     srcs = [
-        "SasModel.cpp",
+        "SasLexico.cpp",
+        "TokenScanner.cpp",
     ],
     deps = [
         ":sas_input_lib",
@@ -97,19 +98,6 @@ cc_library(
     ]
 )
 
-cc_library(
-    name = "sas_token_scanner_lib",
-    hdrs = [
-        "token.txt",
-    ],
-    srcs = [
-        "TokenScanner.cpp",
-    ],
-    deps = [
-        ":sas_lexico_lib",
-    ]
-)
-
 # TODO - rygx: verify armadillo works with superlu
 # can be done with a test solving an equation.
 cc_library(
@@ -123,5 +111,8 @@ cc_library(
     deps = [
         ":sas_lexico_lib",
         "//util:abstract_che_calculator_lib",
+        "//:libmatio_lib",
+        "//:superlu_lib",
+        "//:libjsoncpp",
     ]
 )

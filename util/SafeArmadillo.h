@@ -28,7 +28,7 @@
 #define _Che_SafeArmadillo_H
 
 #define ARMA_USE_SUPERLU
-
+#define ARMA_DONT_USE_WRAPPER
 #include <armadillo>
 
 #endif

@@ -26,6 +26,7 @@
 // 
 #include "pf/ChePFCalculator.h"
 #include "util/CheCompUtil.h"
+#include "matio.h"
 //#include "slu_ddefs.h"
 
 //#define DEBUG_VERBOSE
@@ -1558,6 +1559,40 @@ namespace che {
 
 		CheState ChePfCalculator::exportResult(){
 			return cheList.back()->initState;
+		}
+
+		void ChePfCalculator::writeMatFile(const char *fileName,double interval){
+			this->writeMatFile(fileName);
+		}
+
+		void ChePfCalculator::writeMatFile(const char *fileName){
+			vec result=cheList.back()->initState.state;
+
+			mat solutionMat(result.n_rows, 1, fill::zeros);
+			solutionMat.col(0) = result;
+
+			mat_t *matfp;
+			matvar_t *matvar;
+			size_t dims[2] = {solutionMat.n_rows, solutionMat.n_cols};
+			matfp = Mat_CreateVer(fileName, NULL, MAT_FT_DEFAULT);
+			if (NULL == matfp)
+			{
+				cerr << "Error creating MAT file \"" << fileName << "\"." << endl;
+				return;
+			}
+
+			matvar = Mat_VarCreate("s", MAT_C_DOUBLE, MAT_T_DOUBLE, 2, dims, solutionMat.memptr(), 0);
+			if (NULL == matvar)
+			{
+				cerr << "Error creating variable for ’s’." << endl;
+			}
+			else
+			{
+				Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_NONE);
+				Mat_VarFree(matvar);
+			}
+
+			Mat_Close(matfp);
 		}
 
 		

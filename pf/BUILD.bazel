@@ -13,5 +13,7 @@ cc_library(
     deps = [
         "//util:abstract_che_calculator_lib",
         "//:armadillo_lib",
+        "//:libmatio_lib",
+        "//:superlu_lib",
     ]
 )

@@ -75,7 +75,10 @@ namespace che {
 
 			virtual ~ChePfCalculator();
 
-		//protected:
+			virtual void writeMatFile(const char *);
+
+			virtual void writeMatFile(const char *,double);
+
 			virtual CheSingleEmbedSystem* getNewStage();
 
 			virtual CheSolution* getCheSolution();

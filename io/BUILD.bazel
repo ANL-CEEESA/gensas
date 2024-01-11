@@ -52,7 +52,7 @@ cc_library(
 )
 
 cc_library(
-    name = "mat_psat_rw_lib",
+    name = "m_data_format_rw_lib",
     hdrs = [
         "MatlabToken.h",
         "MDataFormat.h",

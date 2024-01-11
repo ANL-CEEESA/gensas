@@ -1,22 +1,48 @@
 # Installation
 
-### Dependencies
-You will need to install the following dependencies first:
+### Install Bazel
+This gensas repository uses [Bazel](https://bazel.build/) as the build tool. The recommended way to install Bazel is [Bazelisk](https://github.com/bazelbuild/bazelisk). Follow the steps to install bazelisk.
 
-1. [SuperLU](https://portal.nersc.gov/project/sparse/superlu/).
+There are also [other ways to install Bazel](https://bazel.build/start).
 
-2. [Armadillo](http://arma.sourceforge.net/). Armadillo .hpp files need to be included and build together with GenSAS.
+[//]: # (TODO - rygx: build on other OS (Windows and MacOS) to be verified as a part of https://github.com/ANL-CEEESA/gensas/issues/2)
+### Build Gensas
+At the root of the repository, execute command:
+```shell
+bazel build //...
+```
 
-3. BLAS and Lapack. For the best performance, [OpenBLAS](https://www.openblas.net/) is recommended.
+The first-time build (or fresh re-build after running `bazel clean`) will take a while to finish.
 
-4. [MatIO](https://github.com/tbeu/matio). 
+### Run Modelica example
+To run simulation on a small dynamic system under `resources/mofile/test_solve_ode.mo`, run command at repository root:
+```shell
+bazel run //app:app -- -g -m file -i $(pwd)/resources/mofile/test_solve_ode.mo -j /tmp/solution.json
+```
 
-5. [HDF5](https://www.hdfgroup.org/solutions/hdf5/).
+You should see output like
+```
+compMode=-g
+All 2391 characters read successfully.
+Number of DE: 3
+Number of AE: 0
+Number of X: 3
+Number of Y: 0
+Init values generated.
+Stage start 0 end 1, length 1
+Stage start 1 end 2, length 1
+Stage start 2 end 3, length 1
+Stage start 3 end 4, length 1
+Stage start 4 end 5, length 1
+Stage start 5 end 6, length 1
+Stage start 6 end 7, length 1
+Stage start 7 end 8, length 1
+Stage start 8 end 9, length 1
+Stage start 9 end 10, length 1
+Computation time: 0.00302792 s.
+Json file /tmp/solution.json written.
+```
 
-6. [zlib](https://www.zlib.net/).
-
-7. [jsoncpp](https://github.com/open-source-parsers/jsoncpp).
-
-8. [nvwa] (https://github.com/adah1972/nvwa/tree/master/nvwa). Only `_nvwa.h`, `c++11.h`, `debug_new.h`, `fast_mutex.h`, `pctimer.h`, `static_assert.h` are needed to be included.
-
-Then compile and build GenSAS by including or linking the above dependencies.
+### Run a power flow
+[//]: # (TODO - https://github.com/ANL-CEEESA/gensas/issues/4: fix HDF5 runtime issue)
+This is still working in progress (WIP). 
