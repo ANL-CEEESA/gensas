@@ -1,0 +1,118 @@
+load("@rules_cc//cc:defs.bzl" ,"cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "sas_config_lib",
+    hdrs = [
+        "SasConfig.h",
+    ],
+    srcs = [
+        "SasConfig.cpp",
+    ],
+)
+
+cc_library(
+    name = "sas_input_lib",
+    hdrs = [
+        "SasInput.h",
+    ],
+    srcs = [
+        "SasInput.cpp",
+    ],
+    deps = [
+        ":sas_config_lib",
+    ]
+)
+
+cc_library(
+    name = "sas_model_lib",
+    hdrs = [
+        "SasModel.h",
+        "token.txt",
+        "opinfo.txt",
+    ],
+    srcs = [
+        "SasModel.cpp",
+    ],
+    deps = [
+        ":sas_config_lib",
+    ]
+)
+
+cc_library(
+    name = "sas_lexico_lib",
+    hdrs = [
+        "SasLexico.h",
+        "token.txt",
+        "opinfo.txt",
+    ],
+    srcs = [
+        "SasLexico.cpp",
+        "TokenScanner.cpp",
+    ],
+    deps = [
+        ":sas_input_lib",
+        ":sas_model_lib",
+    ]
+)
+
+
+cc_library(
+    name = "sas_expr_lib",
+    hdrs = [
+        "SasExpr.h",
+    ],
+    deps = [
+        ":sas_lexico_lib",
+    ]
+)
+
+cc_library(
+    name = "sas_expr_parser_lib",
+    hdrs = [
+        "token.txt",
+        "opinfo.txt",
+        "tokenop.txt",
+    ],
+    srcs = [
+        "ExprParser.cpp",
+    ],
+    deps = [
+        ":sas_expr_lib",
+    ]
+)
+
+cc_library(
+    name = "sas_model_parser_lib",
+    hdrs = [
+        "token.txt",
+        "opinfo.txt",
+        "tokenop.txt",
+    ],
+    srcs = [
+        "ModelParser.cpp",
+    ],
+    deps = [
+        ":sas_expr_lib",
+    ]
+)
+
+# TODO - rygx: verify armadillo works with superlu
+# can be done with a test solving an equation.
+cc_library(
+    name = "sas_computation_lib",
+    hdrs = [
+        "SasComputation.h",
+    ],
+    srcs = [
+        "SasComputation.cpp",
+    ],
+    deps = [
+        ":sas_lexico_lib",
+        "//util:abstract_che_calculator_lib",
+        "//:libmatio_lib",
+        "//:superlu_lib",
+        "//:libjsoncpp",
+    ]
+)

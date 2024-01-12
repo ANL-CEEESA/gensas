@@ -24,17 +24,17 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "AbstractCheCalculator.h"
-#include "ChePFCalculator.h"
-#include "MatPsatDataRW.h"
-#include "SafeArmadillo.h"
-#include "CheCompUtil.h"
-#include "pctimer.h"
+#include "util/AbstractCheCalculator.h"
+#include "pf/ChePFCalculator.h"
+#include "io/MatPsatDataRW.h"
+#include "util/SafeArmadillo.h"
+#include "util/CheCompUtil.h"
+#include "nvwa/pctimer.h"
 
-#include "SasInput.h"
-#include "SasLexico.h"
-#include "SasExpr.h"
-#include "SasComputation.h"
+#include "sas/SasInput.h"
+#include "sas/SasLexico.h"
+#include "sas/SasExpr.h"
+#include "sas/SasComputation.h"
 #include <memory>
 // #include <memory>
 // #include "debug_new.h"
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 		const double MIN_ERRTOL = 1e-10;
 		const double MAX_OUTSTEP = 1;
 		const double MIN_OUTSTEP = 1e-3;
-		string input = ""; //"/home/miko/cdev/che/resources/mofile/test_solve_dae_simp.mo"
+		string input = ""; 
 		string output = "";
 		string jsonOutput = "";
 		//	parsing command line arguments
@@ -377,14 +377,14 @@ int main(int argc, char **argv)
 		}
 		SasSolutionSet *sasSolLink = compModel.solve(options);
 
-		sasSolLink->writeMatFile(output.c_str(), outStep);
-		if (writeJson) {
-			sasSolLink->writeJSONFile(jsonOutput.c_str(), outStep);
-		}
-
 		pctimer_t endTime = pctimer();
 
 		cout << "Computation time: " << endTime - stTime << " s." << endl;
+
+		if(writeJson){
+			sasSolLink->writeJSONFile(jsonOutput.c_str(), outStep);
+			cout << "Json output written to file "<<jsonOutput<<"."<<endl;
+		}
 
 		delete sasSolLink;
 
@@ -408,8 +408,7 @@ int main(int argc, char **argv)
 			{
 				if (++iArg < argc)
 				{
-					string subArg = argv[iArg];
-					filePath = GetCurrentWorkingDir() + "/" + subArg;
+					filePath = argv[iArg];
 				}
 				else
 				{

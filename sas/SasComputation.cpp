@@ -24,14 +24,13 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "SasComputation.h"
-#include "matio.h"
+#include "sas/SasComputation.h"
 #include <cmath>
-#include <json.h>
-#include <writer.h>
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "matio.h"
+#include <json/json.h>
 
 using namespace std;
 
@@ -42,13 +41,13 @@ namespace che
 
 		static int tokenPrec[]{
 #define OPINFO(op, prec, name, func, opcode) prec,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 #undef OPINFO
 		};
 
 		static int numOperand[]{
 #define OPINFO(op, prec, name, func, opcode) opcode,
-#include "opinfo.txt"
+#include "sas/opinfo.txt"
 #undef OPINFO
 		};
 
@@ -1516,11 +1515,6 @@ namespace che
 			return nullptr;
 		}
 
-		SasSolutionSet::~SasSolutionSet()
-		{
-			solutionLink.clear();
-		}
-
 		void SasSolutionSet::writeMatFile(const char *fileName, double interval)
 		{
 			if (solutionLink.empty())
@@ -1605,10 +1599,6 @@ namespace che
 			Mat_Close(matfp);
 		}
 
-		void SasSolutionSet::writeMatFile(const char *fileName)
-		{
-		}
-
 		void SasSolutionSet::writeJSONFile(const char *fileName, double interval)
 		{
 			if (solutionLink.empty())
@@ -1674,6 +1664,11 @@ namespace che
 			writer->write(res, &fileWriter);
 			fileWriter << std::endl;
 			fileWriter.close();
+		}
+
+		SasSolutionSet::~SasSolutionSet()
+		{
+			solutionLink.clear();
 		}
 
 		IdLocator::IdLocator(const std::list<std::shared_ptr<SasModel>> &searchDomain) : searchDomain(searchDomain) {}

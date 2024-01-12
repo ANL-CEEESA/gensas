@@ -24,7 +24,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "MatPsatDataRW.h"
+#include "io/MatPsatDataRW.h"
 #include "matio.h"
 #include <iostream>
 #include <cmath>
@@ -49,7 +49,7 @@ namespace che {
 
 				matfp = Mat_Open(filePath, MAT_ACC_RDONLY);
 				if (NULL == matfp) {
-					cerr << "Error opening MAT file \"<<filePath<<\"!" << endl;
+					cerr << "Error opening MAT file \""<<filePath<<"\"!" << endl;
 					return CHE_IO_FAIL;
 				}
 

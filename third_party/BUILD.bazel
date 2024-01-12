@@ -1,0 +1,108 @@
+load("@rules_cc//cc:defs.bzl", "cc_test" ,"cc_binary")
+
+# bazel run //:test_openblas
+cc_test(
+    name = "test_openblas",
+    srcs = [
+        "TestOpenBlas.cc",
+    ],
+    deps = [
+        "//:openblas_lib"
+    ],
+    linkopts = ["-lpthread"],
+)
+
+# bazel run //:test_superlu
+cc_test(
+    name = "test_superlu",
+    srcs = [
+        "TestSuperLU.cc",
+    ],
+    deps = [
+        "//:superlu_lib",
+    ],
+    linkopts = ["-lpthread"],
+)
+
+# bazel run //:test_armadillo
+cc_test(
+    name = "test_armadillo",
+    srcs = [
+        "TestArmadillo.cc",
+    ],
+    deps = [
+        "//:armadillo_lib",
+    ],
+    linkopts = ["-lpthread"],
+)
+
+cc_binary(
+    name = "test_szcomp",
+    srcs=[
+        "TestSzLib.cc",
+    ],
+    deps = [
+        "//:libaec"
+    ],
+)
+
+cc_binary(
+    name = "test_zlib",
+    srcs=[
+        "TestZlib.cc",
+    ],
+    deps = [
+        "//:z_lib"
+    ],
+)
+
+cc_library(
+    name = "libaec_lib",
+    hdrs = [
+        "TestLibAec.h",
+    ],
+    deps = [
+        "//:libaec",
+    ],
+)
+
+cc_binary(
+    name = "test_hdf5_compress",
+    srcs=[
+        "TestHdf5.cc",
+    ],
+    deps = [
+        "//:hdf5_lib"
+    ],
+)
+
+
+cc_binary(
+    name = "run_matio",
+    srcs = [
+        "TestLibMatio.cc",
+    ],
+    deps = [
+        "//:libmatio_lib",
+    ]
+)
+
+cc_binary(
+    name = "run_pctimer",
+    srcs = [
+        "TestPcTimer.cc",
+    ],
+    deps = [
+        "@nvwa//:nvwa_pctimer_headers"
+    ]
+)
+
+cc_binary(
+    name = "test_jsoncpp",
+    srcs = [
+        "TestJsonCpp.cc",
+    ],
+    deps = [
+        "//:libjsoncpp"
+    ]
+)

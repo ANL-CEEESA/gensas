@@ -24,8 +24,8 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#include "ChePFCalculator.h"
-#include "CheCompUtil.h"
+#include "pf/ChePFCalculator.h"
+#include "util/CheCompUtil.h"
 #include "matio.h"
 //#include "slu_ddefs.h"
 
@@ -337,9 +337,9 @@ namespace che {
 			return cosp;
 		}
 
-		static void bicgstab(const sp_mat& A, vec& x, vec& b, superlu::trans_t trans, 
-			superlu::SuperMatrix *L, superlu::SuperMatrix *U,int * perm_c, int *perm_r, 
-			superlu::SuperLUStat_t *stat, int *info, int max_it, double tol, double* err, int* iter, int* flag){
+		static void bicgstab(const sp_mat& A, vec& x, vec& b, arma::superlu::trans_t trans, 
+			arma::superlu::SuperMatrix *L, arma::superlu::SuperMatrix *U,int * perm_c, int *perm_r, 
+			arma::superlu::SuperLUStat_t *stat, int *info, int max_it, double tol, double* err, int* iter, int* flag){
 			
 			*iter =0;
 			*flag=0;
@@ -367,10 +367,10 @@ namespace che {
 			vec p,v,s,t,p_hat,s_hat;
 			
 			superlu_opts superlu_opts_default;
-			superlu::superlu_options_t  options;
+			arma::superlu::superlu_options_t  options;
 			sp_auxlib::set_superlu_opts(options, superlu_opts_default);
-			options.IterRefine=superlu::NOREFINE;
-			options.RefineInitialized=superlu::NO;
+			options.IterRefine=arma::superlu::NOREFINE;
+			options.RefineInitialized=arma::superlu::NO;
 			
 			for(;*iter<max_it;*iter+=1){
 				// iteration of the algorithm
@@ -387,7 +387,7 @@ namespace che {
 				// p.print("p");
 				
 				vec xx=p;
-				superlu::SuperMatrix superX1;  arrayops::inplace_set(reinterpret_cast<char*>(&superX1), char(0), sizeof(superlu::SuperMatrix));
+				arma::superlu::SuperMatrix superX1;  arrayops::inplace_set(reinterpret_cast<char*>(&superX1), char(0), sizeof(arma::superlu::SuperMatrix));
 
 				const bool status_x1 = sp_auxlib::wrap_to_supermatrix(superX1, xx);
 				arma_wrapper(dgstrs)(options.Trans, L, U, perm_c, perm_r, &superX1, stat, info);
@@ -408,7 +408,7 @@ namespace che {
 				}
 
 				xx=s;
-				superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(superlu::SuperMatrix));
+				arma::superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
 
 				const bool status_x2 = sp_auxlib::wrap_to_supermatrix(superX2, xx);
 				arma_wrapper(dgstrs)(options.Trans, L, U, perm_c, perm_r, &superX2, stat, info);
@@ -453,9 +453,9 @@ namespace che {
 		}
 
 
-		// static void bicgstab2(const sp_mat& A, vec& x, vec& b, superlu::trans_t trans, 
-		// 	superlu::SuperMatrix *L, superlu::SuperMatrix *U,int * perm_c, int *perm_r, 
-		// 	superlu::SuperLUStat_t *stat, int *info, int max_it, double tol, double* err, int* iter, int* flag){
+		// static void bicgstab2(const sp_mat& A, vec& x, vec& b, arma::superlu::trans_t trans, 
+		// 	arma::superlu::SuperMatrix *L, arma::superlu::SuperMatrix *U,int * perm_c, int *perm_r, 
+		// 	arma::superlu::SuperLUStat_t *stat, int *info, int max_it, double tol, double* err, int* iter, int* flag){
 			
 		// 	*iter =0;
 		// 	*flag=0;
@@ -481,10 +481,10 @@ namespace che {
 		// 	vec p,v,s,t;
 			
 		// 	superlu_opts superlu_opts_default;
-		// 	superlu::superlu_options_t  options;
+		// 	arma::superlu::superlu_options_t  options;
 		// 	sp_auxlib::set_superlu_opts(options, superlu_opts_default);
-		// 	options.IterRefine=superlu::NOREFINE;
-		// 	options.RefineInitialized=superlu::NO;
+		// 	options.IterRefine=arma::superlu::NOREFINE;
+		// 	options.RefineInitialized=arma::superlu::NO;
 			
 		// 	for(;*iter<max_it;*iter+=1){
 		// 		// iteration of the algorithm
@@ -500,7 +500,7 @@ namespace che {
 		// 		}
 				
 		// 		vec xx=p;
-		// 		superlu::SuperMatrix superX1;  arrayops::inplace_set(reinterpret_cast<char*>(&superX1), char(0), sizeof(superlu::SuperMatrix));
+		// 		arma::superlu::SuperMatrix superX1;  arrayops::inplace_set(reinterpret_cast<char*>(&superX1), char(0), sizeof(arma::superlu::SuperMatrix));
 
 		// 		const bool status_x1 = sp_auxlib::wrap_to_supermatrix(superX1, xx);
 		// 		arma_wrapper(dgstrs)(options.Trans, L, U, perm_c, perm_r, &superX1, stat, info);
@@ -517,7 +517,7 @@ namespace che {
 		// 		}
 
 		// 		xx=s;
-		// 		superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(superlu::SuperMatrix));
+		// 		arma::superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
 
 		// 		const bool status_x2 = sp_auxlib::wrap_to_supermatrix(superX2, xx);
 		// 		arma_wrapper(dgstrs)(options.Trans, L, U, perm_c, perm_r, &superX2, stat, info);
@@ -1011,27 +1011,27 @@ namespace che {
 
 			// superlu settings
 			superlu_opts superlu_opts_default;
-			superlu::superlu_options_t  options;
+			arma::superlu::superlu_options_t  options;
 			sp_auxlib::set_superlu_opts(options, superlu_opts_default);
-			options.IterRefine=superlu::NOREFINE;
-			options.RefineInitialized=superlu::NO;
+			options.IterRefine=arma::superlu::NOREFINE;
+			options.RefineInitialized=arma::superlu::NO;
 					
 			const sp_mat& A =   LHS_mat;
 			
-			superlu::SuperMatrix superX;  arrayops::inplace_set(reinterpret_cast<char*>(&superX), char(0), sizeof(superlu::SuperMatrix));
-			superlu::SuperMatrix superA;  arrayops::inplace_set(reinterpret_cast<char*>(&superA), char(0), sizeof(superlu::SuperMatrix));
-			superlu::SuperMatrix superB;  arrayops::inplace_set(reinterpret_cast<char*>(&superB), char(0), sizeof(superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superX;  arrayops::inplace_set(reinterpret_cast<char*>(&superX), char(0), sizeof(arma::superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superA;  arrayops::inplace_set(reinterpret_cast<char*>(&superA), char(0), sizeof(arma::superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superB;  arrayops::inplace_set(reinterpret_cast<char*>(&superB), char(0), sizeof(arma::superlu::SuperMatrix));
 			const bool status_a = sp_auxlib::copy_to_supermatrix(superA, A);
-			superlu::SuperMatrix superL;  arrayops::inplace_set(reinterpret_cast<char*>(&superL), char(0), sizeof(superlu::SuperMatrix));
-			superlu::SuperMatrix superU;  arrayops::inplace_set(reinterpret_cast<char*>(&superU), char(0), sizeof(superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superL;  arrayops::inplace_set(reinterpret_cast<char*>(&superL), char(0), sizeof(arma::superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superU;  arrayops::inplace_set(reinterpret_cast<char*>(&superU), char(0), sizeof(arma::superlu::SuperMatrix));
 
-			int* perm_c = (int*)superlu::malloc((A.n_cols + 1) * sizeof(int));  
-			int* perm_r = (int*)superlu::malloc((A.n_rows + 1) * sizeof(int));
-    		int* etree  = (int*) superlu::malloc( (A.n_cols+1) * sizeof(int) );
-			double* R    = (double*) superlu::malloc( (A.n_rows+1) * sizeof(double) );
-			double* C    = (double*) superlu::malloc( (A.n_cols+1) * sizeof(double) );
-			double* ferr = (double*) superlu::malloc( (1+1) * sizeof(double) );
-			double* berr = (double*) superlu::malloc( (1+1) * sizeof(double) );
+			int* perm_c = (int*)arma::superlu::malloc((A.n_cols + 1) * sizeof(int));  
+			int* perm_r = (int*)arma::superlu::malloc((A.n_rows + 1) * sizeof(int));
+    		int* etree  = (int*) arma::superlu::malloc( (A.n_cols+1) * sizeof(int) );
+			double* R    = (double*) arma::superlu::malloc( (A.n_rows+1) * sizeof(double) );
+			double* C    = (double*) arma::superlu::malloc( (A.n_cols+1) * sizeof(double) );
+			double* ferr = (double*) arma::superlu::malloc( (1+1) * sizeof(double) );
+			double* berr = (double*) arma::superlu::malloc( (1+1) * sizeof(double) );
 			arrayops::inplace_set(perm_c, 0, A.n_cols + 1);
 			arrayops::inplace_set(perm_r, 0, A.n_rows + 1);
 			arrayops::inplace_set(etree, 0, A.n_cols + 1);
@@ -1041,14 +1041,14 @@ namespace che {
 			arrayops::inplace_set(ferr, double(0), 1+1);
 			arrayops::inplace_set(berr, double(0), 1+1);
     
-			superlu::GlobalLU_t glu;
-			arrayops::inplace_set(reinterpret_cast<char*>(&glu), char(0), sizeof(superlu::GlobalLU_t));
+			arma::superlu::GlobalLU_t glu;
+			arrayops::inplace_set(reinterpret_cast<char*>(&glu), char(0), sizeof(arma::superlu::GlobalLU_t));
 			
-			superlu::mem_usage_t  mu;
-			arrayops::inplace_set(reinterpret_cast<char*>(&mu), char(0), sizeof(superlu::mem_usage_t));
+			arma::superlu::mem_usage_t  mu;
+			arrayops::inplace_set(reinterpret_cast<char*>(&mu), char(0), sizeof(arma::superlu::mem_usage_t));
     
-			superlu::SuperLUStat_t stat;
-			superlu::init_stat(&stat);
+			arma::superlu::SuperLUStat_t stat;
+			arma::superlu::init_stat(&stat);
 
 			char equed[8];       // extra characters for paranoia
 			double rpg   = double(0);
@@ -1230,23 +1230,23 @@ namespace che {
 				bool use_iter_solver=0;
 				if (lvl == 0) {
 					if(this->perm_c==NULL){
-						options.ColPerm=superlu::COLAMD;
+						options.ColPerm=arma::superlu::COLAMD;
 					}else{
-						options.ColPerm=superlu::MY_PERMC;
+						options.ColPerm=arma::superlu::MY_PERMC;
 						arrayops::copy(perm_c,this->perm_c,A.n_cols + 1);
 					}
-					options.Fact=superlu::DOFACT;
+					options.Fact=arma::superlu::DOFACT;
 					if(this->perm_r==NULL||this->etree==NULL||true){
-						options.Fact=superlu::DOFACT;
+						options.Fact=arma::superlu::DOFACT;
 					}else{
-						options.Fact=superlu::SamePattern;
+						options.Fact=arma::superlu::SamePattern;
 						arrayops::copy(perm_r,this->perm_r,A.n_rows + 1);
 						arrayops::copy(etree,this->etree,A.n_cols + 1);
 					}
 					if (use_iter_solver){
 						// arma_wrapper(dgssvx)(&options, &superA, perm_c, perm_r, etree, equed, R, C, &superL, &superU, &work[0], lwork, &superB, &superX, &rpg, &rcond, ferr, berr, &glu, &mu, &stat, &superInfo);
-						ilu_set_default_options(&options);
-						options.Equil=superlu::NO;
+						arma_wrapper(ilu_set_default_options)(&options);
+						options.Equil=arma::superlu::NO;
 						lwork=0;
 						char equedx[1]={'N'};
 						arma_wrapper(dgsisx)(&options, &superA, perm_c, perm_r, etree, equedx, R, C, &superL, &superU, NULL, 0, &superB, &superX, &rpg, &rcond, &glu, &mu, &stat, &superInfo);
@@ -1254,7 +1254,7 @@ namespace che {
 						// arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);
 						
 						vec xx=RHS;
-						superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(superlu::SuperMatrix));
+						arma::superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
 
 						const bool status_x2 = sp_auxlib::wrap_to_supermatrix(superX2, xx);
 						arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX2, &stat, &superInfo);
@@ -1293,8 +1293,8 @@ namespace che {
 						// x.print("xx");
 						// arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);
 						// x.print("xx");
-						ilu_set_default_options(&options);
-						options.Equil=superlu::NO;
+						arma_wrapper(ilu_set_default_options)(&options);
+						options.Equil=arma::superlu::NO;
 						// lwork=0;
 						// char equedx[1]={'B'};
 						// arma_wrapper(dgsisx)(&options, &superA, perm_c, perm_r, etree, equedx, R, C, &superL, &superU, NULL, 0, &superB, &superX, &rpg, &rcond, &glu, &mu, &stat, &superInfo);
@@ -1306,7 +1306,7 @@ namespace che {
 						int flag=0;
 						
 						vec xx=RHS;
-						superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(superlu::SuperMatrix));
+						arma::superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
 
 						const bool status_x2 = sp_auxlib::wrap_to_supermatrix(superX2, xx);
 						arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX2, &stat, &superInfo);
@@ -1392,15 +1392,15 @@ namespace che {
 			psol->solution.rows(stateIdx.mPgIdx) = Pm;
 			psol->solution.rows(stateIdx.mEfIdx) = Ef;			
 			
-			superlu::free_stat(&stat);
+			arma::superlu::free_stat(&stat);
 
-			superlu::free(berr);
-			superlu::free(ferr);
-			superlu::free(C);
-			superlu::free(R);
-			superlu::free(etree);
-			superlu::free(perm_c);
-			superlu::free(perm_r);
+			arma::superlu::free(berr);
+			arma::superlu::free(ferr);
+			arma::superlu::free(C);
+			arma::superlu::free(R);
+			arma::superlu::free(etree);
+			arma::superlu::free(perm_c);
+			arma::superlu::free(perm_r);
 
 			sp_auxlib::destroy_supermatrix(superU);
 			sp_auxlib::destroy_supermatrix(superL);
@@ -1561,7 +1561,6 @@ namespace che {
 			return cheList.back()->initState;
 		}
 
-		
 		void ChePfCalculator::writeMatFile(const char *fileName,double interval){
 			this->writeMatFile(fileName);
 		}
@@ -1596,6 +1595,7 @@ namespace che {
 			Mat_Close(matfp);
 		}
 
+		
 		ChePfCalculator::~ChePfCalculator(){
 			if(perm_c!=NULL){
 				delete [] perm_c;

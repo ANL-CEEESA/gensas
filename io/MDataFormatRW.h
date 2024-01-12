@@ -24,13 +24,12 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#pragma once
 
 #include <vector>
 #include <list>
 #include <string>
 #include <iostream>
-#include "MDataFormat.h"
+#include "io/MDataFormat.h"
 
 using namespace std;
 
@@ -53,13 +52,13 @@ namespace che {
 
 			const char* tokenStrings[] = {
 			#define TOKEN(k,s) s,
-			#include "MatlabToken.h"
+			#include "io/MatlabToken.h"
 			#undef TOKEN
 			};
 
 			enum token {
 			#define TOKEN(k,s) k,
-			#include "MatlabToken.h"
+			#include "io/MatlabToken.h"
 			#undef TOKEN
 			TK_SYMBOL,
 			TK_NUM_INT,
@@ -105,7 +104,7 @@ namespace che {
 				trimStr(str);
 				if (str.empty()) return TK_EMPTY;
 #define TOKEN(k,x) if(str.length()==strlen(x)&&str.compare(x)==0) return k;
-#include "MatlabToken.h"
+#include "io/MatlabToken.h"
 #undef TOKEN
 				int type = TK_UNDETERMINED;
 				type = checkNumeric(str);

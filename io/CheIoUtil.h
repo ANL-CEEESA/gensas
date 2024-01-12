@@ -31,8 +31,8 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "SafeArmadillo.h"
-#include "che_io_defs.h"
+#include "util/SafeArmadillo.h"
+#include "io/CheIoDefs.h"
 
 using namespace std;
 using namespace arma;

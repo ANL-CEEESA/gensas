@@ -27,12 +27,12 @@
 #ifndef SAS_COMPUTATION_H
 #define SAS_COMPUTATION_H
 
-#include "SasConfig.h"
-#include "SasInput.h"
-#include "SasLexico.h"
+#include "sas/SasConfig.h"
+#include "sas/SasInput.h"
+#include "sas/SasLexico.h"
 #include <list>
 #include <vector>
-#include "AbstractCheCalculator.h"
+#include "util/AbstractCheCalculator.h"
 
 namespace che {
 	namespace core {
@@ -78,8 +78,6 @@ namespace che {
 			std::shared_ptr<SasSolution> findSasSolution(std::shared_ptr<SasComputationModel>&, double time);
 
 			void writeMatFile(const char* fileName,double interval);
-
-			void writeMatFile(const char* fileName);
 
 			void writeJSONFile(const char* fileName,double interval);
 

@@ -1,0 +1,43 @@
+load("@rules_cc//cc:defs.bzl","cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "safe_armadillo_headers",
+    hdrs = [
+        "SafeArmadillo.h",
+    ],
+    deps = [
+        "//:armadillo_lib",
+    ]
+)
+
+cc_library(
+    name = "che_comp_util_lib",
+    hdrs = [
+        "CheEvents.h",
+        "CheYMatrix.h",
+        "CheState.h",
+        "CheCompUtil.h",
+    ],
+    srcs = [
+        "CheCompUtil.cpp",
+        "CheState.cpp",
+    ],
+    deps = [
+        "//io:che_data_format_lib",
+    ]
+)
+
+cc_library(
+    name = "abstract_che_calculator_lib",
+    hdrs = [
+        "AbstractCheCalculator.h",
+    ],
+    srcs = [
+        "AbstractCheCalculator.cpp",
+    ],
+    deps = [
+        ":che_comp_util_lib",
+    ]
+)

@@ -24,7 +24,6 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
 // 
-#pragma once
 #ifndef _Che_CheDataFormat_H_
 #define _Che_CheDataFormat_H_
 
@@ -32,7 +31,7 @@
 #define M_IDX(x) ((x)+1)
 
 #include <string>
-#include "SafeArmadillo.h"
+#include "util/SafeArmadillo.h"
 #include <map>
 
 using namespace std;

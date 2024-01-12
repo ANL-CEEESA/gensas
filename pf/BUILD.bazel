@@ -1,0 +1,19 @@
+load("@rules_cc//cc:defs.bzl" ,"cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "che_pf_calculator_lib",
+    hdrs = [
+        "ChePFCalculator.h",
+    ],
+    srcs = [
+        "ChePFCalculator.cpp",
+    ],
+    deps = [
+        "//util:abstract_che_calculator_lib",
+        "//:armadillo_lib",
+        "//:libmatio_lib",
+        "//:superlu_lib",
+    ]
+)

@@ -27,10 +27,10 @@
 #ifndef _Che_AbstractCheCalculator_H_
 #define _Che_AbstractCheCalculator_H_
 
-#include "CheState.h"
-#include "CheDataFormat.h"
+#include "util/CheState.h"
+#include "io/CheDataFormat.h"
 #include <list>
-#include "CheYMatrix.h"
+#include "util/CheYMatrix.h"
 
 using namespace che::util;
 using namespace che::io;

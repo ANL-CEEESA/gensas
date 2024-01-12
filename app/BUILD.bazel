@@ -1,0 +1,17 @@
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary")
+
+cc_binary(
+    name = "app",
+    srcs = [
+        "main.cpp",
+    ],
+    deps = [
+        "//pf:che_pf_calculator_lib",
+        "//util:abstract_che_calculator_lib",
+        "//sas:sas_computation_lib",
+        "//io:mat_psat_rw_lib",
+        "//sas:sas_expr_parser_lib",
+        "//sas:sas_model_parser_lib",
+        "@nvwa//:nvwa_pctimer_headers",
+    ]
+)
