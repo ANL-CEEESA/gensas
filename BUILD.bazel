@@ -94,6 +94,27 @@ cc_library(
     ],
 )
 
+
+# 
+configure_make(
+    name = "hdf5_lib_configure",
+    configure_in_place = True,
+    configure_options = [
+        "--with-szlib=$EXT_BUILD_DEPS/libaec/include,$EXT_BUILD_DEPS/libaec/lib",
+        "--with-zlib=$EXT_BUILD_DEPS/z_lib/include,$EXT_BUILD_DEPS/z_lib/lib",
+    ],
+    lib_source = "@hdf5//:all_srcs",
+    deps = [
+        # cannot directly use ":openblas_lib",
+        # need bridged through a `cc_library` containing ":openblas_lib"
+        # i.e. ":openblas_lib_bazel"
+        ":hdf5_deps_lib",
+    ],
+    out_static_libs = ["libhdf5.a"],
+    linkopts = ["-lpthread"],
+    copts = ["-fPIC"],
+)
+
 cmake(
     name = "hdf5_lib",
     cache_entries = {
@@ -197,8 +218,8 @@ configure_make(
     configure_options = [
         "--enable-mat73=yes",
         "--enable-extended-sparse=yes",
-        "--with-zlib=\"$EXT_BUILD_DEPS/hdf5_lib/lib\"",
-        "--with-hdf5=\"$EXT_BUILD_DEPS/z_lib/lib\"",
+        "--with-hdf5=\"$EXT_BUILD_DEPS/hdf5_lib/lib\"",
+        "--with-zlib=\"$EXT_BUILD_DEPS/z_lib/lib\"",
         "--with-default-file-ver=7.3",
     ],
     lib_source = "@libmatio//:all_srcs",
