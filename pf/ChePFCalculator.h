@@ -83,6 +83,7 @@ namespace che {
 
 			virtual CheSolution* getCheSolution();
 		};
+
 	}
 }
 

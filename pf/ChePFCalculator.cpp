@@ -1232,7 +1232,8 @@ namespace che {
 					if(this->perm_c==NULL){
 						options.ColPerm=arma::superlu::COLAMD;
 					}else{
-						options.ColPerm=arma::superlu::MY_PERMC;
+						// TODO - rygx: work with arma team to fix the enum slip issue
+						options.ColPerm=static_cast<arma::superlu::colperm_t>(8); // This represents the MY_PERMC in SuperLu 6.0
 						arrayops::copy(perm_c,this->perm_c,A.n_cols + 1);
 					}
 					options.Fact=arma::superlu::DOFACT;
@@ -1243,37 +1244,8 @@ namespace che {
 						arrayops::copy(perm_r,this->perm_r,A.n_rows + 1);
 						arrayops::copy(etree,this->etree,A.n_cols + 1);
 					}
-					if (use_iter_solver){
-						// arma_wrapper(dgssvx)(&options, &superA, perm_c, perm_r, etree, equed, R, C, &superL, &superU, &work[0], lwork, &superB, &superX, &rpg, &rcond, ferr, berr, &glu, &mu, &stat, &superInfo);
-						arma_wrapper(ilu_set_default_options)(&options);
-						options.Equil=arma::superlu::NO;
-						lwork=0;
-						char equedx[1]={'N'};
-						arma_wrapper(dgsisx)(&options, &superA, perm_c, perm_r, etree, equedx, R, C, &superL, &superU, NULL, 0, &superB, &superX, &rpg, &rcond, &glu, &mu, &stat, &superInfo);
-						// arma_wrapper(dgsitrf)(&options, &superA, 2, 10, etree, &work[0], lwork, perm_c, perm_r, &superL, &superU, &glu, &stat, &superInfo);
-						// arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);
-						
-						vec xx=RHS;
-						arma::superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
-
-						const bool status_x2 = sp_auxlib::wrap_to_supermatrix(superX2, xx);
-						arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX2, &stat, &superInfo);
-						x=xx;
-						sp_auxlib::destroy_supermatrix(superX2);
-
-						int max_it=5000;
-						double tol=1.0e-10;
-						double err=0.0;
-						int iter=0;
-						int flag=0;
-						// x.fill(0.0);
-						// LHS_mat.print("A");
-						vec cbx=RHS;
-						bicgstab(LHS_mat, x, cbx, options.Trans, &superL, &superU, perm_c, perm_r, &stat, &superInfo, max_it, tol, &err, &iter, &flag);
-					}else{						
-						arma_wrapper(dgssvx)(&options, &superA, perm_c, perm_r, etree, equed, R, C, &superL, &superU, &work[0], lwork, &superB, &superX, &rpg, &rcond, ferr, berr, &glu, &mu, &stat, &superInfo);
-					}
-					// arma_wrapper(dgssvx)(&options, &superA, perm_c, perm_r, etree, equed, R, C, &superL, &superU, &work[0], lwork, &superB, &superX, &rpg, &rcond, ferr, berr, &glu, &mu, &stat, &superInfo);
+										
+					arma_wrapper(dgssvx)(&options, &superA, perm_c, perm_r, etree, equed, R, C, &superL, &superU, &work[0], lwork, &superB, &superX, &rpg, &rcond, ferr, berr, &glu, &mu, &stat, &superInfo);
 					
 					if(this->perm_c==NULL){
 						this->perm_c=new int[A.n_cols + 1];
@@ -1288,39 +1260,8 @@ namespace che {
 					arrayops::copy(this->perm_r,perm_r,A.n_rows + 1);
 					arrayops::copy(this->etree,etree,A.n_cols + 1);
 				}
-				else {
-					if (use_iter_solver){
-						// x.print("xx");
-						// arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);
-						// x.print("xx");
-						arma_wrapper(ilu_set_default_options)(&options);
-						options.Equil=arma::superlu::NO;
-						// lwork=0;
-						// char equedx[1]={'B'};
-						// arma_wrapper(dgsisx)(&options, &superA, perm_c, perm_r, etree, equedx, R, C, &superL, &superU, NULL, 0, &superB, &superX, &rpg, &rcond, &glu, &mu, &stat, &superInfo);
-						
-						int max_it=5000;
-						double tol=1.0e-10;
-						double err=0.0;
-						int iter=0;
-						int flag=0;
-						
-						vec xx=RHS;
-						arma::superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
-
-						const bool status_x2 = sp_auxlib::wrap_to_supermatrix(superX2, xx);
-						arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX2, &stat, &superInfo);
-						x=xx;
-						sp_auxlib::destroy_supermatrix(superX2);
-
-						// x.print("x");
-						vec cbx=RHS;
-						bicgstab(LHS_mat, x, cbx, options.Trans, &superL, &superU, perm_c, perm_r, &stat, &superInfo, max_it, tol, &err, &iter, &flag);
-						// x.print("x");
-					}else{						
-						arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);
-					}
-					
+				else {									
+					arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);					
 				}
 
 				// x.print("x");	

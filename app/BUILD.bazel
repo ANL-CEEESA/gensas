@@ -13,5 +13,8 @@ cc_binary(
         "//sas:sas_expr_parser_lib",
         "//sas:sas_model_parser_lib",
         "@nvwa//:nvwa_pctimer_headers",
-    ]
+    ],
+    env = {
+        
+    }
 )

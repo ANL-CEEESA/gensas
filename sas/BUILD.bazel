@@ -94,7 +94,7 @@ cc_library(
         "ModelParser.cpp",
     ],
     deps = [
-        ":sas_expr_lib",
+        ":sas_expr_parser_lib",
     ]
 )
 
