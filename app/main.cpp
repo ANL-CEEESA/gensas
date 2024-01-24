@@ -400,7 +400,7 @@ int main(int argc, char **argv)
 		double alphaTol = 1e-4;
 		double diffTol = 1e-6;
 		double diffTolMax = 1e-2;
-		int repeat = 10;
+		int repeat = 1;
 		for (int iArg = 2; iArg < argc; iArg++)
 		{
 			string arg = argv[iArg];
