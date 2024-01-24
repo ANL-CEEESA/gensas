@@ -100,8 +100,8 @@ configure_make(
     name = "hdf5_lib_configure",
     configure_in_place = True,
     configure_options = [
-        "--with-szlib=$EXT_BUILD_DEPS/libaec/include,$EXT_BUILD_DEPS/libaec/lib",
-        "--with-zlib=$EXT_BUILD_DEPS/z_lib/include,$EXT_BUILD_DEPS/z_lib/lib",
+        "--with-szlib=libaec/include,$EXT_BUILD_DEPS/libaec/lib",
+        "--with-zlib=z_lib/include,$EXT_BUILD_DEPS/z_lib/lib",
     ],
     lib_source = "@hdf5//:all_srcs",
     deps = [
@@ -112,7 +112,10 @@ configure_make(
     ],
     out_static_libs = ["libhdf5.a"],
     linkopts = ["-lpthread"],
-    copts = ["-fPIC"],
+    includes = [
+        "z_lib/include",
+        "libaec/include",
+    ]
 )
 
 cmake(
@@ -179,6 +182,7 @@ cmake(
         # "-L$EXT_BUILD_DEPS/lib", "-lopenblas",
         # "-lgfortran",
         ],
+    copts = ["-fPIC"]
 )
 
 cmake(
@@ -227,7 +231,7 @@ configure_make(
         # cannot directly use ":openblas_lib",
         # need bridged through a `cc_library` containing ":openblas_lib"
         # i.e. ":openblas_lib_bazel"
-        ":hdf5_lib",
+        ":hdf5_lib_configure",
         ":z_lib",
     ],
     out_static_libs = ["libmatio.a"],

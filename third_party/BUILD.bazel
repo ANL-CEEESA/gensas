@@ -72,7 +72,7 @@ cc_binary(
         "TestHdf5.cc",
     ],
     deps = [
-        "//:hdf5_lib"
+        "@hdf5_custom//:hdf5_cpp"
     ],
 )
 
