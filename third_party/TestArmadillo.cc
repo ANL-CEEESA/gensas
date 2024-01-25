@@ -1,3 +1,7 @@
+
+#define ARMA_USE_SUPERLU
+#define ARMA_USE_LAPACK
+#define ARMA_DONT_USE_WRAPPER
 #include <iostream>
 #include <armadillo>
 
