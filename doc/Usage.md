@@ -4,12 +4,12 @@
 Current version only provides AC power flow. Assume the executable is gensas.out, then the power flow computation can be called as follows.
 
 ```bash
-gensas.out -p 
-    -f/--file <input-file-name> 
-    -o/--output <output-file-name> 
-    [-l/--level <sas-order>]
-    [-s/--segment <segment-length>]
-    [-a/--alphatol <alpha-tolerance>]
+bazel run //app:app -- -p \
+    -f/--file <input-file-name> \
+    -o/--output <output-file-name> \
+    [-l/--level <sas-order>] \
+    [-s/--segment <segment-length>] \
+    [-a/--alphatol <alpha-tolerance>] \
     [-d/--difftol <error-tolerance>]
 ```
 
@@ -23,25 +23,25 @@ Explanations:
 * `-d/--difftol <error-tolerance>` (optional) specifies the error tolerance of the equations. If not specified, the error tolerance is set as 1e-6.
 
 Example:
-Try running power flow of the modified synthetic eastern-interconnection (EI) 70,000-bus system:
+Try running power flow of the modified synthetic eastern-interconnection (EI) 70,000-bus system in the project root directory:
 ```bash
-./gensas.out -p -f resources/psat_mat/d_70k_070.mat -s 0.5 -l 28 -d 1e-5 -o res.mat
+bazel run //app:app -- -p -f $(pwd)/resources/psat_mat/d_70k_070.mat -s 0.5 -l 28 -d 1e-5 -o res.mat
 ```
 
 ### ModelicaSAS
 Currently, ModelicaSAS supports simulation of a single Modelica .mo model without discrete events. The simulation can be called as follows:
 
 ```bash
-gensas.out -g 
-    -m/--mode file/string 
-    -i/--input <input> 
-    -o/--output <output-file-name>  
-    [-j/--json <json-output-file-name>]
-    [-l/--level <sas-order>]
-    [-s/--segment <segment-length>]
-    [-a/--aTol <alpha-tolerance>]
-    [-e/--eTol <error-tolerance>]
-    [-t/--outStep <output-step>]
+bazel run //app:app -- -g \
+    -m/--mode file/string \
+    -i/--input <input> \
+    -o/--output <output-file-name> \
+    [-j/--json <json-output-file-name>] \
+    [-l/--level <sas-order>] \
+    [-s/--segment <segment-length>] \
+    [-a/--aTol <alpha-tolerance>] \
+    [-e/--eTol <error-tolerance>] \
+    [-t/--outStep <output-step>] \
     [-v/--verbose]
 ```
 
@@ -60,11 +60,11 @@ Explanations:
 * `-v/--verbose` (optional) if used, will print intermediate result in SAS computation.
 
 Example:
-Try running simulation of the model in `resources/mofile/test_solve_ode.mo`.
+Try running simulation of the model in `resources/mofile/test_solve_ode.mo` in the project root directory.
 
 ```bash
- ./gensas.out -g 
-    -m file -i resources/mofile/test_solve_ode.mo 
-    -o resources/mofile/test_solve_ode.mat 
+ bazel run //app:app -- -g \
+    -m file -i $(pwd)/resources/mofile/test_solve_ode.mo \
+    -o resources/mofile/test_solve_ode.mat \
     -t 15
 ```
