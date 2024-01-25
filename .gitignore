@@ -5,3 +5,5 @@ bazel-testlogs
 .vscode
 genhtml
 *.log
+*.out
+.envrc.local

@@ -89,7 +89,7 @@ http_archive(
     build_file_content = _ALL_CONTENT ,
     strip_prefix = "zlib-1.3",
     urls = [
-        "https://zlib.net/zlib-1.3.tar.gz"
+        "https://github.com/madler/zlib/releases/download/v1.3/zlib-1.3.tar.gz"
     ],
     sha256 = "FF0BA4C292013DBC27530B3A81E1F9A813CD39DE01CA5E0F8BF355702EFA593E",
 )
