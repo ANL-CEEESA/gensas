@@ -5,7 +5,6 @@ This gensas repository uses [Bazel](https://bazel.build/) as the build tool. The
 
 There are also [other ways to install Bazel](https://bazel.build/start).
 
-[//]: # (TODO - rygx: build on other OS (Windows and MacOS) to be verified as a part of https://github.com/ANL-CEEESA/gensas/issues/2)
 ### Build Gensas
 At the root of the repository, execute command:
 ```shell
@@ -44,5 +43,23 @@ Json file /tmp/solution.json written.
 ```
 
 ### Run a power flow
-[//]: # (TODO - https://github.com/ANL-CEEESA/gensas/issues/4: fix HDF5 runtime issue)
-This is still working in progress (WIP). 
+
+Power flow can be run using the `-p` mode. There are sample input data representing some test models, with sizes ranging from 14 buses to 210,000 buses.
+
+An example for running the synthetic 210,000-bus system:
+``` shell
+bazel run //app:app -- -p -f $(pwd)/resources/psat_mat/d_210k.mat -l 25 -s 0.2
+```
+
+You should see output like
+```
+compMode=-p
+Step=0.19375, added=0.19375, (maxDiff<1e-06).
+Step=0.39375, added=0.2, (maxDiff<1e-06).
+Step=0.553125, added=0.159375, (maxDiff<1e-06).
+Step=0.740625, added=0.1875, (maxDiff<1e-06).
+Step=0.9, added=0.159375, (maxDiff<1e-06).
+Step=1, added=0.1, (maxDiff<1e-06).
+Computation No.1
+Computation time: 89.9048 s.
+```
