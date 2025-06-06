@@ -7,3 +7,4 @@ genhtml
 *.log
 *.out
 .envrc.local
+.bazelrc.local
