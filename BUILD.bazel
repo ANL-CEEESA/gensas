@@ -1,7 +1,54 @@
 load("@rules_cc//cc:defs.bzl", "cc_test","cc_library")
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake", "make", "configure_make")
 
+# Auto-detected gfortran linker flags (includes -L<path> on macOS Homebrew).
+# Only used on Linux; macOS uses Accelerate instead (see below).
+load("@gfortran_config//:defs.bzl", "GFORTRAN_LINKOPTS")
+
 package(default_visibility = ["//visibility:public"])
+
+# ---------------------------------------------------------------------------
+# Platform config_settings used by select() below.
+# ---------------------------------------------------------------------------
+
+config_setting(
+    name = "macos",
+    constraint_values = ["@platforms//os:macos"],
+)
+
+config_setting(
+    name = "macos_arm64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:arm64",
+    ],
+)
+
+config_setting(
+    name = "macos_x86_64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+# ---------------------------------------------------------------------------
+# macOS Accelerate framework
+# ---------------------------------------------------------------------------
+# On macOS we use Apple's built-in Accelerate framework instead of OpenBLAS.
+# Accelerate provides both BLAS and LAPACK, requires zero build steps, and is
+# hardware-optimised for Apple Silicon (AMX) – giving better performance than
+# a generic OpenBLAS build. Armadillo (with -DARMA_DONT_USE_WRAPPER) and
+# SuperLU both resolve their BLAS/LAPACK symbols against it transparently.
+cc_library(
+    name = "macos_accelerate",
+    linkopts = ["-framework Accelerate"],
+    visibility = ["//visibility:public"],
+)
+
+# ---------------------------------------------------------------------------
+# pcre
+# ---------------------------------------------------------------------------
 
 cmake(
     name = "pcre",
@@ -12,16 +59,20 @@ cmake(
     out_static_libs = ["libpcre.a"],
 )
 
-# Each full make will take about 10 minutes to run
+# ---------------------------------------------------------------------------
+# OpenBLAS  (Linux only – macOS uses :macos_accelerate instead)
+# ---------------------------------------------------------------------------
+# Each full make will take about 10 minutes to run.
 make(
     name = "openblas_lib",
     lib_source = "@openblas//:all_srcs",
     out_static_libs = ["libopenblas.a"],
-    # experiment to export build data
     build_data = [
         "@openblas//:README.md",
     ],
     out_data_dirs = ["share"],
+    # No extra args needed on Linux (the verified working platform).
+    args = [],
 )
 
 cc_library(
@@ -33,29 +84,51 @@ cc_library(
     ]
 )
 
+# ---------------------------------------------------------------------------
+# SuperLU
+# ---------------------------------------------------------------------------
 # There may be a bad symlinked header and the workaround is at:
 # https://github.com/bazelbuild/rules_foreign_cc/issues/1129#issuecomment-1863628259
+#
+# macOS: SuperLU is pointed at Accelerate instead of OpenBLAS.
+#        "-framework Accelerate" is passed as the BLAS path because CMake's
+#        FindBLAS will accept it as a linker flag when given as a full path-
+#        style argument.  The deps list is empty because Accelerate is a
+#        system framework and needs no file dependency.
 cmake(
     name = "superlu_lib",
-    cache_entries = {
-        # "CMAKE_INSTALL_PREFIX": ".",
-        # "CMAKE_INSTALL_INCLUDEDIR": "include",
-        # deps ":openblas_lib_bazel" will be copied to "$EXT_BUILD_DEPS"
-        # The directory structure of ":openblas_lib_bazel" are retained,
-        # usually libraries are under /lib and headers are under /include
-        "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/lib/libopenblas.a"
-    },
+    cache_entries = select({
+        "//:macos": {
+            "TPL_BLAS_LIBRARIES": "-framework Accelerate",
+        },
+        "//conditions:default": {
+            # deps ":openblas_lib_bazel" will be copied to "$EXT_BUILD_DEPS"
+            # The directory structure of ":openblas_lib_bazel" are retained,
+            # usually libraries are under /lib and headers are under /include
+            "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/lib/libopenblas.a",
+        },
+    }),
     lib_source = "@superlu//:all_srcs",
     out_static_libs = ["libsuperlu.a"],
-    deps = [
-        # cannot directly use ":openblas_lib",
-        # need bridged through a `cc_library` containing ":openblas_lib"
-        # i.e. ":openblas_lib_bazel"
-        ":openblas_lib_bazel"
-    ],
-    linkopts = ["-lpthread"],
+    deps = select({
+        "//:macos": [],
+        "//conditions:default": [
+            # cannot directly use ":openblas_lib",
+            # need bridged through a `cc_library` containing ":openblas_lib"
+            ":openblas_lib_bazel",
+        ],
+    }),
+    linkopts = select({
+        "//:macos": ["-framework Accelerate"],
+        "//conditions:default": ["-lpthread"],
+    }),
 )
 
+# ---------------------------------------------------------------------------
+# Armadillo
+# ---------------------------------------------------------------------------
+# macOS: link against Accelerate; no Fortran runtime needed.
+# Linux: link against OpenBLAS + gfortran runtime (existing behaviour).
 cmake(
     name = "armadillo_lib",
     cache_entries = {
@@ -63,16 +136,25 @@ cmake(
     },
     lib_source = "@armadillo//:all_srcs",
     out_static_libs = ["libarmadillo.a"],
-    deps = [
-        ":openblas_lib_bazel"
-    ],
+    deps = select({
+        "//:macos": [],
+        "//conditions:default": [":openblas_lib_bazel"],
+    }),
     copts =[
         "-DARMA_DONT_USE_WRAPPER"
     ],
-    linkopts = [
-        "-lgfortran",
-        ],
+    linkopts = select({
+        # Accelerate provides both BLAS and LAPACK on macOS.
+        "//:macos": ["-framework Accelerate"],
+        # GFORTRAN_LINKOPTS is generated by //tools:gfortran_detect.bzl.
+        # On Linux it is typically just ["-lgfortran"].
+        "//conditions:default": GFORTRAN_LINKOPTS,
+    }),
 )
+
+# ---------------------------------------------------------------------------
+# HDF5 dependencies (zlib + libaec/szlib)
+# ---------------------------------------------------------------------------
 
 cc_library(
     name = "hdf5_deps_lib",
@@ -82,14 +164,48 @@ cc_library(
     ],
 )
 
-# 
+#
 configure_make(
     name = "hdf5_lib",
     configure_in_place = True,
     configure_options = [
-        "--with-szlib=libaec/include,$EXT_BUILD_DEPS/libaec/lib",
         "--with-zlib=z_lib/include,$EXT_BUILD_DEPS/z_lib/lib",
-    ],
+    ] + select({
+        # macOS: build WITHOUT szip (libaec).
+        #
+        # When HDF5 is built with szip, libhdf5.a contains the szip filter
+        # object files which reference libaec symbols.  On macOS, Bazel adds
+        # -Wl,-dead_strip to LDFLAGS, which causes the linker to evaluate ALL
+        # archive members (before stripping unreachable ones).  This pulls the
+        # szip code into the libmatio configure AC_CHECK_LIB(hdf5) link test,
+        # where -laec is not on the link line → the test fails → libmatio is
+        # compiled without HDF5 support → Mat_Open returns NULL for v7.3 files.
+        #
+        # MATLAB v7.3 files use DEFLATE (gzip) compression, not szip, so
+        # omitting szip from the macOS HDF5 build has no practical impact.
+        #
+        # --disable-shared / --enable-static: prevents Apple libtool path.
+        "//:macos": [
+            "--without-szlib",
+            "--disable-shared",
+            "--enable-static",
+        ],
+        # Linux: keep szip support (no -dead_strip, so the link test works fine)
+        "//conditions:default": [
+            "--with-szlib=libaec/include,$EXT_BUILD_DEPS/libaec/lib",
+        ],
+    }),
+    # macOS: rules_foreign_cc injects AR=/usr/bin/libtool from Bazel's toolchain.
+    # HDF5's configure uses AR to generate its libtool wrapper script, so it
+    # must see the real ar(1) here or the wrapper will call Apple libtool with
+    # GNU-style flags and fail with "no output file specified".
+    env = select({
+        "//:macos": {
+            "AR": "/usr/bin/ar",
+            "RANLIB": "/usr/bin/ranlib",
+        },
+        "//conditions:default": {},
+    }),
     lib_source = "@hdf5//:all_srcs",
     deps = [
         ":hdf5_deps_lib",
@@ -102,6 +218,10 @@ configure_make(
     ]
 )
 
+# ---------------------------------------------------------------------------
+# zlib
+# ---------------------------------------------------------------------------
+
 cmake(
     name = "z_lib",
     cache_entries = {
@@ -111,6 +231,10 @@ cmake(
     out_static_libs = ["libz.a"],
     copts = ["-fPIC"] # this is necessary otherwise will cause hdf5 build to complain
 )
+
+# ---------------------------------------------------------------------------
+# libaec (szlib)
+# ---------------------------------------------------------------------------
 
 cmake(
     name = "libaec",
@@ -124,7 +248,11 @@ cmake(
         ],
 )
 
-# 
+# ---------------------------------------------------------------------------
+# libmatio
+# ---------------------------------------------------------------------------
+
+#
 configure_make(
     name = "libmatio_lib",
     configure_in_place = True,
@@ -134,15 +262,40 @@ configure_make(
         "--with-hdf5=\"$EXT_BUILD_DEPS/hdf5_lib/lib\"",
         "--with-zlib=\"$EXT_BUILD_DEPS/z_lib/lib\"",
         "--with-default-file-ver=7.3",
-    ],
+    ] + select({
+        # --disable-shared / --enable-static: prevents Apple libtool path.
+        # No LIBS= or LDFLAGS= overrides needed: HDF5 is built without szip on
+        # macOS, so libhdf5.a has no libaec symbol references and
+        # AC_CHECK_LIB(hdf5, H5open) succeeds with just -lhdf5 -lz.
+        "//:macos": ["--disable-shared", "--enable-static"],
+        "//conditions:default": [],
+    }),
+    # Same AR/RANLIB override as hdf5_lib — prevents Apple libtool from being
+    # used in place of ar(1) when the configure-generated libtool wrapper runs.
+    env = select({
+        "//:macos": {
+            "AR": "/usr/bin/ar",
+            "RANLIB": "/usr/bin/ranlib",
+        },
+        "//conditions:default": {},
+    }),
     lib_source = "@libmatio//:all_srcs",
     deps = [
         ":hdf5_lib",
         ":z_lib",
-    ],
+    ] + select({
+        # macOS: HDF5 built without szip → libaec not needed here.
+        # Linux: HDF5 built with szip → libaec needed for transitive link.
+        "//:macos": [],
+        "//conditions:default": [":libaec"],
+    }),
     out_static_libs = ["libmatio.a"],
     linkopts = ["-lpthread"],
 )
+
+# ---------------------------------------------------------------------------
+# jsoncpp
+# ---------------------------------------------------------------------------
 
 cmake(
     name = "libjsoncpp",
