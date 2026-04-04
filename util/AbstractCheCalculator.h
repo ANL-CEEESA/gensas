@@ -124,10 +124,12 @@ namespace che {
 
 			CheSingleEmbedSystem(const CheState&, const chedata::PsatDataSet&, double);
 
+			virtual ~CheSingleEmbedSystem() {}
+
 			virtual vec calcEqBalance(CheSolution* sol,double alpha) = 0;
 
 			virtual CheSingleEmbedSystem* getNewEmbeddedSystem(const CheState &st, double alpha) = 0;
-			
+
 			CheSingleEmbedSystem(const CheSingleEmbedSystem&)= delete;
 
 			CheSingleEmbedSystem& operator=(const CheSingleEmbedSystem&) = delete;
