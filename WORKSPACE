@@ -2,6 +2,10 @@ workspace(name = "gensas")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Detect gfortran library path for cross-platform linking (macOS needs -L<dir>).
+load("//tools:gfortran_detect.bzl", "gfortran_detect")
+gfortran_detect(name = "gfortran_config")
+
 # Rule repository, note that it's recommended to use a pinned commit to a released version of the rules
 http_archive(
     name = "rules_foreign_cc",
@@ -69,7 +73,7 @@ http_archive(
     urls = [
         "https://gitlab.com/conradsnicta/armadillo-code/-/archive/12.6.x/armadillo-code-12.6.x.tar.gz"
     ],
-    sha256 = "0052C111E1188737A8B9495FD163D80015D3D8F0AE3D962B16BF74BD29176A23",
+    sha256 = "02719846FABB64DC1734E914ADE9B559AB48B18C21A745149595CCAD1B20C953",
 )
 
 #hdf5
@@ -84,14 +88,15 @@ http_archive(
 )
 
 #zlib
+# Upgraded from 1.3 to 1.3.1: fixes fdopen macro clash with macOS SDK headers.
 http_archive(
     name = "zlib",
     build_file_content = _ALL_CONTENT ,
-    strip_prefix = "zlib-1.3",
+    strip_prefix = "zlib-1.3.1",
     urls = [
-        "https://github.com/madler/zlib/releases/download/v1.3/zlib-1.3.tar.gz"
+        "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz"
     ],
-    sha256 = "FF0BA4C292013DBC27530B3A81E1F9A813CD39DE01CA5E0F8BF355702EFA593E",
+    sha256 = "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
 )
 
 #libaec (szlib)

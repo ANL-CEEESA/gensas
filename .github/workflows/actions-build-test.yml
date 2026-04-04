@@ -1,8 +1,8 @@
 name: Build checks
-run-name: ${{ github.actor }} Build test 
+run-name: ${{ github.actor }} Build test
 on: [push]
 jobs:
-  Build-Test:
+  Build-Test-Linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
@@ -19,7 +19,35 @@ jobs:
         uses: actions/cache@v3
         with:
             path: "~/.cache/bazel"
-            key: bazel
+            key: bazel_debian-${{ hashFiles('WORKSPACE', 'BUILD.bazel') }}
+      - run: bazel build //...
+      - run: bazel test //...
+      - run: echo "This job's status is ${{ job.status }}."
+
+  Build-Test-MacOs:
+    runs-on: macos-latest
+    steps:
+      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "This job is now running on a ${{ runner.os }} server."
+      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "The workflow is now ready to test your code on the runner."
+      - name: Install dependencies
+        # gcc provides gfortran (required by armadillo/linear-algebra targets).
+        # cmake is required by rules_foreign_cc cmake() rules.
+        # The macOS .bazelrc exposes /opt/homebrew/opt/gcc/bin so the versioned
+        # gfortran symlink installed by brew is visible inside Bazel sandboxes.
+        run: brew install gcc cmake
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Mount bazel cache  # Optional
+        uses: actions/cache@v3
+        with:
+            path: "~/.cache/bazel"
+            key: bazel_macos-${{ hashFiles('WORKSPACE', 'BUILD.bazel') }}
       - run: bazel build //...
       - run: bazel test //...
       - run: echo "This job's status is ${{ job.status }}."

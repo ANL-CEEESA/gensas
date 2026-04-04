@@ -4,5 +4,26 @@ build -c opt
 build --noincompatible_sandbox_hermetic_tmp
 test --test_output=all
 
+# ---------------------------------------------------------------------------
+# Platform-specific configs
+# ---------------------------------------------------------------------------
+# Bazel 7 automatically applies build:macos on macOS, build:linux on Linux, etc.
+build --enable_platform_specific_config
+
+# macOS: expose Homebrew binary directories to the foreign_cc rule sandboxes.
+# rules_foreign_cc runs cmake/make/configure in a sandbox that does NOT inherit
+# the shell PATH, so gfortran, cmake, ninja, etc. from Homebrew would be
+# invisible without this.
+#
+# Covers both Apple Silicon (/opt/homebrew) and Intel Mac (/usr/local).
+build:macos --action_env=PATH=/opt/homebrew/bin:/opt/homebrew/opt/gcc/bin:/usr/local/bin:/usr/local/opt/gcc/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+# macOS: make the gfortran library directory visible to the host linker as well,
+# for targets that link against the Fortran runtime (e.g. via armadillo→openblas).
+# The GFORTRAN_LINKOPTS repository rule already adds the -L flag to the affected
+# Bazel targets, but propagating it as a global linkopt is a belt-and-suspenders
+# safety measure for any target the rule might miss.
+build:macos --host_action_env=PATH=/opt/homebrew/bin:/opt/homebrew/opt/gcc/bin:/usr/local/bin:/usr/local/opt/gcc/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
 # Optionally use private .bazelrc.local
 try-import %workspace%/.bazelrc.local
