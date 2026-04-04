@@ -8,3 +8,4 @@ genhtml
 *.out
 .envrc.local
 .bazelrc.local
+gensas_integration_test_output.mat
