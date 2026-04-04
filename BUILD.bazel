@@ -73,6 +73,9 @@ make(
     out_data_dirs = ["share"],
     # No extra args needed on Linux (the verified working platform).
     args = [],
+    # macOS uses :macos_accelerate instead; mark incompatible so
+    # `bazel build //...` skips this target on non-Linux platforms.
+    target_compatible_with = ["@platforms//os:linux"],
 )
 
 cc_library(
@@ -81,7 +84,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":openblas_lib",
-    ]
+    ],
+    target_compatible_with = ["@platforms//os:linux"],
 )
 
 # ---------------------------------------------------------------------------
