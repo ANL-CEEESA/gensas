@@ -7,25 +7,18 @@
 #                                    # needs formatting (used by CI)
 #
 # Requirements:
-#   clang-format 17 must be on PATH.
-#   Install:
-#     macOS:  brew install llvm && export PATH="$(brew --prefix llvm)/bin:$PATH"
-#     Linux:  sudo apt-get install -y clang-format-17
-#             sudo ln -sf /usr/bin/clang-format-17 /usr/local/bin/clang-format
+#   clang-format must be on PATH.
+#   Install (both macOS and Linux):
+#     pip install clang-format==22.1.2
+#
+# Override the binary with:
+#   CLANG_FORMAT=/path/to/clang-format bash scripts/format.sh
 
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Pinned version used by both this script and CI.
-# Override with: CLANG_FORMAT=/path/to/clang-format bash scripts/format.sh
-CLANG_FORMAT_VERSION=17
-CLANG_FORMAT="${CLANG_FORMAT:-clang-format-${CLANG_FORMAT_VERSION}}"
-
-# Fall back to unversioned binary if the versioned one isn't found.
-if ! command -v "${CLANG_FORMAT}" &>/dev/null; then
-  CLANG_FORMAT="clang-format"
-fi
+CLANG_FORMAT="${CLANG_FORMAT:-clang-format}"
 
 CHECK_ONLY=0
 
@@ -40,8 +33,7 @@ done
 # ── Verify clang-format is available ─────────────────────────────────────────
 if ! command -v "${CLANG_FORMAT}" &>/dev/null; then
   echo "error: '${CLANG_FORMAT}' not found."
-  echo "  macOS: brew install llvm && export PATH=\"\$(brew --prefix llvm)/bin:\$PATH\""
-  echo "  Linux: sudo apt-get install -y clang-format-17"
+  echo "  Install: pip install clang-format==22.1.2"
   exit 1
 fi
 
