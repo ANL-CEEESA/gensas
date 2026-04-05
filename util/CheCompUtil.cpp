@@ -4,26 +4,26 @@
 // Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
 // By: Argonne National Laboratory
 // OPEN SOURCE LICENSE
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-// 
-// 
+//
+//
 // ******************************************************************************************************
 // DISCLAIMER
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
-// 
+//
 #include "CheCompUtil.h"
 
 using namespace arma;
@@ -38,8 +38,7 @@ namespace che {
 				}
 				if (k > n / 2) {
 					return nchoosek(n, n - k);
-				}
-				else {
+				} else {
 					long numer = n;
 					long denom = 1;
 					for (int i = 1; i < k; i++) {
@@ -48,8 +47,7 @@ namespace che {
 					}
 					return numer / denom;
 				}
-			}
-			else {
+			} else {
 				return 0;
 			}
 		}
@@ -61,8 +59,7 @@ namespace che {
 				}
 				if (k > n / 2) {
 					return nchoosek(n, n - k);
-				}
-				else {
+				} else {
 					double res = n;
 					for (int i = 1; i < k; i++) {
 						res *= n - i;
@@ -70,8 +67,7 @@ namespace che {
 					}
 					return res;
 				}
-			}
-			else {
+			} else {
 				return 0;
 			}
 		}
@@ -99,8 +95,7 @@ namespace che {
 							break;
 						}
 					}
-				}
-				else {
+				} else {
 					sum = 0;
 					for (int l = 1; l < d; l++) {
 						if (seq(k - 1, l) < max) {
@@ -111,8 +106,7 @@ namespace che {
 								sum += seq(k, m);
 							}
 							break;
-						}
-						else {
+						} else {
 							temp = 0;
 							for (int m = l + 2; m < d; m++) {
 								temp += seq(k - 1, m);
@@ -128,14 +122,13 @@ namespace che {
 			return seq;
 		}
 
-		static uvec generateIdx(int& sCount, int num) {
+		static uvec generateIdx(int &sCount, int num) {
 			if (num > 0) {
 				int start = sCount;
 				int end = sCount + num - 1;
 				sCount += num;
 				return regspace<uvec>(start, end);
-			}
-			else {
+			} else {
 				return uvec();
 			}
 		}
@@ -147,13 +140,13 @@ namespace che {
 			stateIdx.viIdx = generateIdx(sCount, cheData.nBus);
 			stateIdx.qIdx = generateIdx(sCount, cheData.nBus);
 			stateIdx.pIdx = generateIdx(sCount, cheData.nBus);
-			
+
 			stateIdx.sIdx = generateIdx(sCount, cheData.nInd);
 			stateIdx.indEr1Idx = generateIdx(sCount, cheData.nInd);
 			stateIdx.indEm1Idx = generateIdx(sCount, cheData.nInd);
 			stateIdx.indEr2Idx = generateIdx(sCount, cheData.nInd);
 			stateIdx.indEm2Idx = generateIdx(sCount, cheData.nInd);
-			
+
 			stateIdx.mDeltaIdx = generateIdx(sCount, cheData.nSyn);
 			stateIdx.mOmegaIdx = generateIdx(sCount, cheData.nSyn);
 			stateIdx.mEq1Idx = generateIdx(sCount, cheData.nSyn);
@@ -182,7 +175,7 @@ namespace che {
 			stateIdx.avr1r2Idx = generateIdx(sCount, nExc1);
 			stateIdx.avr1rIdx = generateIdx(sCount, nExc1);
 			stateIdx.avr1fIdx = generateIdx(sCount, nExc1);
-			
+
 			stateIdx.avr2mIdx = generateIdx(sCount, nExc2);
 			stateIdx.avr2r1Idx = generateIdx(sCount, nExc2);
 			stateIdx.avr2rIdx = generateIdx(sCount, nExc2);
@@ -213,7 +206,7 @@ namespace che {
 
 			stateIdx.tmechIdx = generateIdx(sCount, cheData.nTg);
 
-			stateIdx.fIdx= generateIdx(sCount, cheData.nBus);
+			stateIdx.fIdx = generateIdx(sCount, cheData.nBus);
 			stateIdx.qpltIdx = generateIdx(sCount, cheData.nBus);
 			stateIdx.vgIdx = generateIdx(sCount, cheData.nBus);
 
@@ -222,7 +215,7 @@ namespace che {
 			return stateIdx;
 		}
 
-		CheYMatrix CheCompUtil::getCheYMatrix(const chedata::PsatDataSet &cheData, const list<Fault>& faultList) {
+		CheYMatrix CheCompUtil::getCheYMatrix(const chedata::PsatDataSet &cheData, const list<Fault> &faultList) {
 			CheYMatrix yMatrix = CheYMatrix();
 
 			int nBus = cheData.nBus;
@@ -232,7 +225,7 @@ namespace che {
 			cx_vec z(r, x);
 			vec b = cheData.get_lines_b_vec();
 			vec status = conv_to<vec>::from(cheData.get_lines_status_vec());
-			cx_vec chrg1(0.0*b, 0.5*status%b);
+			cx_vec chrg1(0.0 * b, 0.5 * status % b);
 			cx_vec chrg2 = chrg1;
 			cx_vec y = status / z;
 
@@ -240,12 +233,13 @@ namespace che {
 				vector<int> idxVec = vector<int>();
 				vector<double> posVec = vector<double>();
 				vector<complex<double>> zVec = vector<complex<double>>();
-				for (auto&&fault : faultList) {
+				for (auto &&fault : faultList) {
 					if (fault.fType == Fault::FAULT_3P || fault.fType == Fault::FAULT_3PG) {
-						idxVec.push_back(fault.lineIdx-1);
+						idxVec.push_back(fault.lineIdx - 1);
 						posVec.push_back(fault.pos);
 						cx_double zz = 1e-6;
-						if (!fault.faultY.empty()) zz = ((double)(fault.faultY.n_rows)) / trace(fault.faultY);
+						if (!fault.faultY.empty())
+							zz = ((double)(fault.faultY.n_rows)) / trace(fault.faultY);
 						zVec.push_back(zz);
 					}
 				}
@@ -263,7 +257,7 @@ namespace che {
 				cx_vec rzf2 = ones<vec>(zf2.n_rows) / zf2;
 				cx_vec rzf1 = ones<vec>(zf1.n_rows) / zf1;
 				uvec izf1g_zero = find(((zf1 == 0.) % (zf == 0.)) == 1);
-				uvec izf2g_zero= find(((zf2 == 0.) % (zf == 0.)) == 1);
+				uvec izf2g_zero = find(((zf2 == 0.) % (zf == 0.)) == 1);
 
 				yfto(izf1g_zero) = rzf2(izf1g_zero);
 				yftr(izf1g_zero) = rzf2(izf1g_zero);
@@ -277,22 +271,22 @@ namespace che {
 
 			vec k = cheData.get_lines_k_vec();
 			k(find(k == 0)).fill(1.0);
-			vec angInArc = datum::pi / 180.0*cheData.get_lines_ang_vec();
+			vec angInArc = datum::pi / 180.0 * cheData.get_lines_ang_vec();
 			cx_vec ts = k % cx_vec(cos(angInArc), sin(angInArc));
-			vec ts2 = abs(ts)%abs(ts);
+			vec ts2 = abs(ts) % abs(ts);
 
 			yMatrix.ytrfr = y / conj(ts);
 			yMatrix.ytrto = y / ts;
 			yMatrix.yshfr = (y + chrg1) / ts2 - yMatrix.ytrfr;
 			yMatrix.yshto = y + chrg2 - yMatrix.ytrto;
 
-			uvec ifr = cheData.get_lines_fromBus_vec()-1;
-			uvec ito = cheData.get_lines_toBus_vec()-1;
+			uvec ifr = cheData.get_lines_fromBus_vec() - 1;
+			uvec ito = cheData.get_lines_toBus_vec() - 1;
 
 			umat loc = join_cols(join_rows(ifr, ito), join_rows(ito, ifr), join_rows(ifr, ifr), join_rows(ito, ito)).t();
 			cx_vec val = join_cols(-y / conj(ts), -y / ts, (y + chrg1) / ts2, y + chrg2);
 
-			yMatrix.Y = sp_cx_mat(true,loc, val,nBus,nBus);
+			yMatrix.Y = sp_cx_mat(true, loc, val, nBus, nBus);
 			yMatrix.Ysh = sum(yMatrix.Y, 1);
 			yMatrix.Ytr = yMatrix.Y;
 			yMatrix.Ytr.diag() -= yMatrix.Ysh;
@@ -308,10 +302,10 @@ namespace che {
 			uvec ipv = find(busTag(cheData.get_pvs_busNumber_vec() - 1) == 1);
 			uvec ipq = find(busTag(cheData.get_pqs_busNumber_vec() - 1) == 1);
 			uvec ishunt = find(busTag(cheData.get_shunts_busNumber_vec() - 1) == 1);
-			uvec iline= find((busTag(cheData.get_lines_fromBus_vec() - 1) == 1)% (busTag(cheData.get_lines_toBus_vec() - 1) == 1));
+			uvec iline = find((busTag(cheData.get_lines_fromBus_vec() - 1) == 1) % (busTag(cheData.get_lines_toBus_vec() - 1) == 1));
 			uvec ipl = find(busTag(cheData.get_pls_busNumber_vec() - 1) == 1);
 			uvec iind = find(busTag(cheData.get_inds_busNumber_vec() - 1) == 1);
-			uvec isyn= find(busTag(cheData.get_syns_busNumber_vec() - 1) == 1);
+			uvec isyn = find(busTag(cheData.get_syns_busNumber_vec() - 1) == 1);
 			uvec synTag(cheData.nSyn, fill::zeros);
 			synTag(isyn).fill(1);
 			uvec itg = find(synTag(cheData.get_tgs_synNumber_vec() - 1) == 1);
@@ -399,33 +393,33 @@ namespace che {
 			return newCheData;
 		}
 
-		void dfsSearch(std::list<int>& subgraph,int v, bool visited[],std::vector<std::list<int>>& adjacent){
-			visited[v]=true;
+		void dfsSearch(std::list<int> &subgraph, int v, bool visited[], std::vector<std::list<int>> &adjacent) {
+			visited[v] = true;
 
 			subgraph.push_back(v);
-			for (std::list<int>::iterator iter=adjacent[v].begin();iter!=adjacent[v].end();iter++){
-				if (!visited[*iter]){
+			for (std::list<int>::iterator iter = adjacent[v].begin(); iter != adjacent[v].end(); iter++) {
+				if (!visited[*iter]) {
 					dfsSearch(subgraph, *iter, visited, adjacent);
 				}
 			}
 		}
 
-		std::vector<std::list<int>> connectedComponents(std::vector<std::list<int>>& adjacent){
+		std::vector<std::list<int>> connectedComponents(std::vector<std::list<int>> &adjacent) {
 			std::vector<std::list<int>> res;
-			size_t nv=adjacent.size();
-			bool* visited = new bool[nv];
-			for (size_t v = 0; v < nv; v++){
+			size_t nv = adjacent.size();
+			bool *visited = new bool[nv];
+			for (size_t v = 0; v < nv; v++) {
 				visited[v] = false;
 			}
 
-			for (size_t v=0;v<nv;v++){
-				if (!visited[v]){
+			for (size_t v = 0; v < nv; v++) {
+				if (!visited[v]) {
 					std::list<int> conncomp;
-					dfsSearch(conncomp,v,visited,adjacent);
+					dfsSearch(conncomp, v, visited, adjacent);
 					res.push_back(conncomp);
-				}				
+				}
 			}
-			delete [] visited;
+			delete[] visited;
 
 			return res;
 		}
@@ -472,32 +466,32 @@ namespace che {
 				adjacent[ito(i)].push_back(ifr(i));
 			}
 
-			std::vector<std::list<int>> connComps=connectedComponents(adjacent);
+			std::vector<std::list<int>> connComps = connectedComponents(adjacent);
 
 			uvec islands(cheData.nBus);
 			islands.fill(-1);
 
-			for (size_t i=0; i<connComps.size();i++){
-				for (std::list<int>::iterator iter=connComps[i].begin();iter!=connComps[i].end();iter++){
-					islands(*iter)=i;
+			for (size_t i = 0; i < connComps.size(); i++) {
+				for (std::list<int>::iterator iter = connComps[i].begin(); iter != connComps[i].end(); iter++) {
+					islands(*iter) = i;
 				}
 			}
 
 			return islands;
 		}
 
-		list<chedata::PsatDataSet> CheCompUtil::splitIslands(const chedata::PsatDataSet &cheData, const uvec& islands) {
+		list<chedata::PsatDataSet> CheCompUtil::splitIslands(const chedata::PsatDataSet &cheData, const uvec &islands) {
 			assert(cheData.isFormatted);
 			int nIslands = islands.max() + 1;
 
-			list< chedata::PsatDataSet> islandDataList;
+			list<chedata::PsatDataSet> islandDataList;
 			for (int i = 0; i < nIslands; i++) {
 				uvec busesInIsland = find(islands == i);
 				islandDataList.push_back(getCheSubSet(cheData, busesInIsland));
-			} 
+			}
 
 			return islandDataList;
 		}
 
-	}
-}
+	} // namespace util
+} // namespace che

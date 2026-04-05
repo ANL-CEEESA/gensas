@@ -4,32 +4,32 @@
 // Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
 // By: Argonne National Laboratory
 // OPEN SOURCE LICENSE
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-// 
-// 
+//
+//
 // ******************************************************************************************************
 // DISCLAIMER
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
-// 
+//
 #include "pf/ChePFCalculator.h"
 #include "util/CheCompUtil.h"
 #include "matio.h"
-//#include "slu_ddefs.h"
+// #include "slu_ddefs.h"
 
-//#define DEBUG_VERBOSE
+// #define DEBUG_VERBOSE
 #ifdef DEBUG_VERBOSE
 #define QN(x) #x
 #define QUOTE(x) QN(x)
@@ -38,11 +38,10 @@
 #define DEBUG_PRINT_MAT(m)
 #endif
 
-
 namespace che {
 	namespace core {
 		ChePfEmbedSystem::ChePfEmbedSystem(const chedata::PsatDataSet &sys)
-			:CheSingleEmbedSystem(CheState(sys), sys, 0.0) {
+			: CheSingleEmbedSystem(CheState(sys), sys, 0.0) {
 			initState.state(initState.stateIdx.vrIdx).fill(1.0);
 			initState.state(initState.stateIdx.mEfIdx).fill(1.0);
 		}
@@ -50,7 +49,7 @@ namespace che {
 		ChePfEmbedSystem::ChePfEmbedSystem(const chedata::PsatDataSet &sys, const CheState &st, double alpha)
 			: CheSingleEmbedSystem(st, sys, alpha) {}
 
-		vec ChePfEmbedSystem::calcEqBalance(CheSolution* sol, double alpha) {
+		vec ChePfEmbedSystem::calcEqBalance(CheSolution *sol, double alpha) {
 			double absA = startAlpha + alpha;
 
 			vec solVal = sol->getSolValue(alpha);
@@ -67,15 +66,15 @@ namespace che {
 			qVec(C_IDX(baseSys.get_pqs_busNumber_vec())) -= absA * baseSys.get_pqs_Q_vec();
 			if (baseSys.nPl > 0) {
 				pVec(C_IDX(baseSys.get_pls_busNumber_vec())) -= absA * baseSys.get_pls_P_vec() %
-					conv_to<vec>::from(baseSys.get_pls_status_vec());
+																conv_to<vec>::from(baseSys.get_pls_status_vec());
 				qVec(C_IDX(baseSys.get_pls_busNumber_vec())) -= absA * baseSys.get_pls_Q_vec() %
-					conv_to<vec>::from(baseSys.get_pls_status_vec());
+																conv_to<vec>::from(baseSys.get_pls_status_vec());
 			}
 			cx_vec V = cx_vec(curState.getSubVec(curState.stateIdx.vrIdx), curState.getSubVec(curState.stateIdx.viIdx));
 			sp_cx_mat Y = yMatrix.Ytr;
 			cx_vec Ysh = yMatrix.Ysh;
 			cx_vec YshShunt(baseSys.get_shunts_g_vec(), baseSys.get_shunts_b_vec());
-			
+
 			Ysh(C_IDX(baseSys.get_shunts_busNumber_vec())) += YshShunt;
 			if (baseSys.nPl > 0) {
 				Ysh(C_IDX(baseSys.get_pls_busNumber_vec())) += cx_vec(baseSys.get_pls_g_vec(), baseSys.get_pls_b_vec());
@@ -83,9 +82,9 @@ namespace che {
 			Y.diag() += absA * Ysh;
 			cx_vec IInj = Y * V;
 			IInj(C_IDX(baseSys.get_pls_busNumber_vec())) += absA *
-				cx_vec(baseSys.get_pls_Ip_vec(), -baseSys.get_pls_Iq_vec()) %
-				conv_to<vec>::from(baseSys.get_pls_status_vec()) %
-				V(C_IDX(baseSys.get_pls_busNumber_vec())) / abs(V(C_IDX(baseSys.get_pls_busNumber_vec())));
+															cx_vec(baseSys.get_pls_Ip_vec(), -baseSys.get_pls_Iq_vec()) %
+															conv_to<vec>::from(baseSys.get_pls_status_vec()) %
+															V(C_IDX(baseSys.get_pls_busNumber_vec())) / abs(V(C_IDX(baseSys.get_pls_busNumber_vec())));
 			cx_vec SInjRHS = V % conj(IInj);
 			if (baseSys.nSyn > 0) {
 				uvec synIdx = C_IDX(baseSys.get_syns_busNumber_vec());
@@ -101,8 +100,8 @@ namespace che {
 				vec Rs = baseSys.get_syns_ra_vec();
 				vec Xq = baseSys.get_syns_xq_vec();
 				vec Xd = baseSys.get_syns_xd_vec();
-				vec Id = (Rs % (Efd - Vd) + Xq % (Efq - Vq)) / (Rs%Rs + Xq % Xd);
-				vec Iq = (-Xd % (Efd - Vd) + Rs % (Efq - Vq)) / (Rs%Rs + Xq % Xd);
+				vec Id = (Rs % (Efd - Vd) + Xq % (Efq - Vq)) / (Rs % Rs + Xq % Xd);
+				vec Iq = (-Xd % (Efd - Vd) + Rs % (Efq - Vq)) / (Rs % Rs + Xq % Xd);
 				cx_vec Ig(sind % Id + cosd % Iq, -cosd % Id + sind % Iq);
 				SInjRHS(synIdx) -= V(synIdx) % conj(Ig);
 			}
@@ -121,20 +120,19 @@ namespace che {
 				vec T0 = baseSys.get_inds_Ta_vec() + baseSys.get_inds_Tb_vec() + baseSys.get_inds_Tc_vec();
 				vec T1 = -baseSys.get_inds_Tb_vec() - 2 * baseSys.get_inds_Tc_vec();
 				vec T2 = baseSys.get_inds_Tc_vec();
-				cx_vec Y2 = s / (cx_vec(R2, s%X2));
+				cx_vec Y2 = s / (cx_vec(R2, s % X2));
 				cx_vec Ytotal = (Ym + Y2) / (cx_vec(R1, X1) % (Ym + Y2) + 1.0);
 				cx_vec ILind = V(indIdx) % Ytotal;
 				SInjRHS(indIdx) += V(indIdx) % conj(ILind);
 
 				cx_vec Veind = V(indIdx) - ILind % cx_vec(R1, X1);
 				cx_vec IRs = Veind % Y2;
-				diffTind = real(IRs%conj(IRs) % R2 - absA * (T0 + s % (T1 + s % T2)) % s);
-			}
-			else {
+				diffTind = real(IRs % conj(IRs) % R2 - absA * (T0 + s % (T1 + s % T2)) % s);
+			} else {
 				diffTind = vec();
 			}
 
-			//qVec(find(busType > 0)).fill(0.);
+			// qVec(find(busType > 0)).fill(0.);
 			vec Q = curState.getSubVec(curState.stateIdx.qIdx);
 			SInjRHS -= cx_vec(pVec, qVec + Q);
 			SInjRHS(find(busType == 2)).fill(0.);
@@ -143,71 +141,63 @@ namespace che {
 			if (baseSys.nPv > 0) {
 				uvec pvIdx = C_IDX(baseSys.get_pvs_busNumber_vec());
 				diffV = absA * (baseSys.get_pvs_vMag_vec() % baseSys.get_pvs_vMag_vec() - 1) + 1 - real(V(pvIdx) % conj(V(pvIdx)));
-			}
-			else {
+			} else {
 				diffV = vec();
 			}
 
 			return join_cols(real(SInjRHS), imag(SInjRHS), diffV, diffTind);
 		}
 
-		CheSingleEmbedSystem* ChePfEmbedSystem::getNewEmbeddedSystem(const CheState &st, double alpha) {
-			CheSingleEmbedSystem* embSys = new ChePfEmbedSystem(baseSys, st, startAlpha + alpha);
+		CheSingleEmbedSystem *ChePfEmbedSystem::getNewEmbeddedSystem(const CheState &st, double alpha) {
+			CheSingleEmbedSystem *embSys = new ChePfEmbedSystem(baseSys, st, startAlpha + alpha);
 			return embSys;
 		}
 
 		ChePfCalculator::ChePfCalculator(const chedata::PsatDataSet &sys,
-			const CheCompOptions& compOpt,
-			const vec &ef, const vec &pm) :
-			ChePfCalculator(sys,compOpt,CheCompUtil::searchIslands(sys),ef,pm){			
+										 const CheCompOptions &compOpt,
+										 const vec &ef, const vec &pm) : ChePfCalculator(sys, compOpt, CheCompUtil::searchIslands(sys), ef, pm) {
 		}
 
 		ChePfCalculator::ChePfCalculator(const chedata::PsatDataSet &sys,
-			const CheCompOptions& compOpt, const uvec& islands,
-			const vec &ef, const vec &pm) :
-			AbstractCheCalculator(sys, compOpt) {
+										 const CheCompOptions &compOpt, const uvec &islands,
+										 const vec &ef, const vec &pm) : AbstractCheCalculator(sys, compOpt) {
 			if (ef.n_rows == sys.nSyn) {
 				this->paraEf = ef;
-			}
-			else if (!ef.empty()) {
+			} else if (!ef.empty()) {
 				this->paraEf = vec(sys.nSyn > 0 ? sys.nSyn : 0).fill(ef(0));
-			}
-			else {
+			} else {
 				this->paraEf = vec(sys.nSyn > 0 ? sys.nSyn : 0).fill(1.2);
 			}
 			DEBUG_PRINT_MAT(pm)
 			if (pm.n_rows == sys.nSyn) {
 				this->paraPm = pm;
-			}
-			else if (!pm.empty()) {
+			} else if (!pm.empty()) {
 				this->paraPm = vec(sys.nSyn > 0 ? sys.nSyn : 0).fill(pm(0));
-			}
-			else {
+			} else {
 				this->paraPm = vec(sys.nSyn > 0 ? sys.nSyn : 0).fill(0.0);
 			}
 			// Temporary
 			if (!this->paraPm.empty()) {
 				this->pShare = vec(paraPm.n_rows).fill(1.0 / paraPm.n_rows);
-			}
-			else {
+			} else {
 				this->pShare = vec();
 			}
 
-			if (islands.n_rows!=this->baseSys.nBus){
-				this->islands=CheCompUtil::searchIslands(this->baseSys);
-			}else{
-				this->islands=islands;
+			if (islands.n_rows != this->baseSys.nBus) {
+				this->islands = CheCompUtil::searchIslands(this->baseSys);
+			} else {
+				this->islands = islands;
 			}
 
 			// this->baseSys = regulateIsland(this->baseSys);
 
-			perm_c=NULL;
-			perm_r=NULL;
-			etree=NULL;
+			perm_c = NULL;
+			perm_r = NULL;
+			etree = NULL;
 		}
 
-		CheSingleEmbedSystem* ChePfCalculator::getInitSystem(const chedata::PsatDataSet &sys) {
-			CheSingleEmbedSystem* embSys = new ChePfEmbedSystem(sys);
+		CheSingleEmbedSystem *ChePfCalculator::getInitSystem(const chedata::PsatDataSet &sys) {
+			CheSingleEmbedSystem *embSys = new ChePfEmbedSystem(sys);
 			return embSys;
 		}
 
@@ -224,13 +214,13 @@ namespace che {
 				synTag(synIdx).fill(1);
 				uvec swTag = synTag(C_IDX(newSys.get_sws_busNumber_vec()));
 				uvec pvTag = synTag(C_IDX(newSys.get_pvs_busNumber_vec()));
-				int nSw= newSys.nSw > 0 ? newSys.nSw : 0;
+				int nSw = newSys.nSw > 0 ? newSys.nSw : 0;
 				int nPv = newSys.nPv > 0 ? newSys.nPv : 0;
-				int nSwNew = nSw-sum(swTag);
-				int nPvNew = nPv-sum(pvTag);
+				int nSwNew = nSw - sum(swTag);
+				int nPvNew = nPv - sum(pvTag);
 				uvec swIdxNew = find(swTag == 0);
 				uvec pvIdxNew = find(pvTag == 0);
-				
+
 				vec extraP(nbus, fill::zeros);
 				extraP(C_IDX(newSys.get_pvs_busNumber_vec())) += newSys.get_pvs_P_vec();
 				uvec nm(nbus, fill::zeros);
@@ -243,8 +233,7 @@ namespace che {
 					if (nSwNew <= 0) {
 						newSys.nSw = -1;
 						delete[] newSys.sws;
-					}
-					else if (nSwNew < newSys.nSw) {
+					} else if (nSwNew < newSys.nSw) {
 						chedata::SW *psw = new chedata::SW[nSwNew];
 						for (int i = 0; i < nSwNew; i++) {
 							psw[i] = chedata::SW(newSys.sws[swIdxNew(i)]);
@@ -258,8 +247,7 @@ namespace che {
 					if (nPvNew <= 0) {
 						newSys.nPv = -1;
 						delete[] newSys.pvs;
-					}
-					else if (nPvNew < newSys.nPv) {
+					} else if (nPvNew < newSys.nPv) {
 						chedata::PV *ppv = new chedata::PV[nPvNew];
 						for (int i = 0; i < nPvNew; i++) {
 							ppv[i] = chedata::PV(newSys.pvs[pvIdxNew(i)]);
@@ -274,31 +262,34 @@ namespace che {
 		}
 
 		static mat getTaylorPolynomialsSin(const vec &d0, int n) {
-			if (n > 4) n = 4;
-			if (n < 0) n = 0;
+			if (n > 4)
+				n = 4;
+			if (n < 0)
+				n = 0;
 			vec sind0 = sin(d0);
 			vec cosd0 = cos(d0);
-			mat sinp(d0.n_rows, n + 1,fill::zeros);
-			if (n >= 0) sinp.col(0) = sind0;
+			mat sinp(d0.n_rows, n + 1, fill::zeros);
+			if (n >= 0)
+				sinp.col(0) = sind0;
 			if (n >= 1) {
-				sinp.col(0) += -cosd0%d0;
+				sinp.col(0) += -cosd0 % d0;
 				sinp.col(1) += cosd0;
 			}
 			if (n >= 2) {
-				sinp.col(0) += -sind0%d0%d0/2.0;
-				sinp.col(1) += sind0%d0;
-				sinp.col(2) += -sind0/2.0;
+				sinp.col(0) += -sind0 % d0 % d0 / 2.0;
+				sinp.col(1) += sind0 % d0;
+				sinp.col(2) += -sind0 / 2.0;
 			}
 			if (n >= 3) {
-				sinp.col(0) += cosd0 % d0%d0%d0/6.0;
-				sinp.col(1) += -cosd0 % d0%d0 / 2.0;
+				sinp.col(0) += cosd0 % d0 % d0 % d0 / 6.0;
+				sinp.col(1) += -cosd0 % d0 % d0 / 2.0;
 				sinp.col(2) += cosd0 % d0 / 2.0;
 				sinp.col(3) += -cosd0 / 6.0;
 			}
 			if (n >= 4) {
-				sinp.col(0) += sind0 % d0%d0%d0%d0 / 24.0;
-				sinp.col(1) += -sind0 % d0%d0%d0 / 6.0;
-				sinp.col(2) += sind0 % d0%d0 / 4.0;
+				sinp.col(0) += sind0 % d0 % d0 % d0 % d0 / 24.0;
+				sinp.col(1) += -sind0 % d0 % d0 % d0 / 6.0;
+				sinp.col(2) += sind0 % d0 % d0 / 4.0;
 				sinp.col(3) += -sind0 % d0 / 6.0;
 				sinp.col(4) += sind0 / 24.0;
 			}
@@ -306,157 +297,160 @@ namespace che {
 		}
 
 		static mat getTaylorPolynomialsCos(const vec &d0, int n) {
-			if (n > 4) n = 4;
-			if (n < 0) n = 0;
+			if (n > 4)
+				n = 4;
+			if (n < 0)
+				n = 0;
 			vec sind0 = sin(d0);
 			vec cosd0 = cos(d0);
 			mat cosp(d0.n_rows, n + 1, fill::zeros);
-			if (n >= 0) cosp.col(0) = cosd0;
+			if (n >= 0)
+				cosp.col(0) = cosd0;
 			if (n >= 1) {
 				cosp.col(0) += sind0 % d0;
 				cosp.col(1) += -sind0;
 			}
 			if (n >= 2) {
-				cosp.col(0) += -cosd0 % d0%d0 / 2.0;
+				cosp.col(0) += -cosd0 % d0 % d0 / 2.0;
 				cosp.col(1) += cosd0 % d0;
 				cosp.col(2) += -cosd0 / 2.0;
 			}
 			if (n >= 3) {
-				cosp.col(0) += -sind0 % d0%d0%d0 / 6.0;
-				cosp.col(1) += sind0 % d0%d0 / 2.0;
+				cosp.col(0) += -sind0 % d0 % d0 % d0 / 6.0;
+				cosp.col(1) += sind0 % d0 % d0 / 2.0;
 				cosp.col(2) += -sind0 % d0 / 2.0;
 				cosp.col(3) += sind0 / 6.0;
 			}
 			if (n >= 4) {
-				cosp.col(0) += cosd0 % d0%d0%d0%d0 / 24.0;
-				cosp.col(1) += -cosd0 % d0%d0%d0 / 6.0;
-				cosp.col(2) += cosd0 % d0%d0 / 4.0;
+				cosp.col(0) += cosd0 % d0 % d0 % d0 % d0 / 24.0;
+				cosp.col(1) += -cosd0 % d0 % d0 % d0 / 6.0;
+				cosp.col(2) += cosd0 % d0 % d0 / 4.0;
 				cosp.col(3) += -cosd0 % d0 / 6.0;
 				cosp.col(4) += cosd0 / 24.0;
 			}
 			return cosp;
 		}
 
-		static void bicgstab(const sp_mat& A, vec& x, vec& b, arma::superlu::trans_t trans, 
-			arma::superlu::SuperMatrix *L, arma::superlu::SuperMatrix *U,int * perm_c, int *perm_r, 
-			arma::superlu::SuperLUStat_t *stat, int *info, int max_it, double tol, double* err, int* iter, int* flag){
-			
-			*iter =0;
-			*flag=0;
-			double bnrm2=norm(b);
+		static void bicgstab(const sp_mat &A, vec &x, vec &b, arma::superlu::trans_t trans,
+							 arma::superlu::SuperMatrix *L, arma::superlu::SuperMatrix *U, int *perm_c, int *perm_r,
+							 arma::superlu::SuperLUStat_t *stat, int *info, int max_it, double tol, double *err, int *iter, int *flag) {
+
+			*iter = 0;
+			*flag = 0;
+			double bnrm2 = norm(b);
 			// A.print("A");
-			vec kk=A*x;
+			vec kk = A * x;
 			// b.print("b");
 			// kk.print("kk");
 			// x.print("x");
 			// b.print("b");
 			vec r(b);
-			r-=kk;
+			r -= kk;
 			// r.print("r");
-			*err=norm(r)/bnrm2;
-			if (*err<tol){
+			*err = norm(r) / bnrm2;
+			if (*err < tol) {
 				return;
 			}
 
-			double omega=1.0;
-			vec r_tld=r;
-			double beta=0.0;
-			double rho_1=1.0;
-			double rho=1.0;
-			double alpha=0.0;
-			vec p,v,s,t,p_hat,s_hat;
-			
+			double omega = 1.0;
+			vec r_tld = r;
+			double beta = 0.0;
+			double rho_1 = 1.0;
+			double rho = 1.0;
+			double alpha = 0.0;
+			vec p, v, s, t, p_hat, s_hat;
+
 			superlu_opts superlu_opts_default;
-			arma::superlu::superlu_options_t  options;
+			arma::superlu::superlu_options_t options;
 			sp_auxlib::set_superlu_opts(options, superlu_opts_default);
-			options.IterRefine=arma::superlu::NOREFINE;
-			options.RefineInitialized=arma::superlu::NO;
-			
-			for(;*iter<max_it;*iter+=1){
+			options.IterRefine = arma::superlu::NOREFINE;
+			options.RefineInitialized = arma::superlu::NO;
+
+			for (; *iter < max_it; *iter += 1) {
 				// iteration of the algorithm
-				rho = dot(r_tld,r);
-				if (rho==0){
+				rho = dot(r_tld, r);
+				if (rho == 0) {
 					break;
 				}
-				if((*iter)>0){
-					beta=(rho/rho_1)*(alpha/omega);
-					p=r+beta*(p-omega*v);
-				}else{
-					p=r;
+				if ((*iter) > 0) {
+					beta = (rho / rho_1) * (alpha / omega);
+					p = r + beta * (p - omega * v);
+				} else {
+					p = r;
 				}
 				// p.print("p");
-				
-				vec xx=p;
-				arma::superlu::SuperMatrix superX1;  arrayops::inplace_set(reinterpret_cast<char*>(&superX1), char(0), sizeof(arma::superlu::SuperMatrix));
+
+				vec xx = p;
+				arma::superlu::SuperMatrix superX1;
+				arrayops::inplace_set(reinterpret_cast<char *>(&superX1), char(0), sizeof(arma::superlu::SuperMatrix));
 
 				const bool status_x1 = sp_auxlib::wrap_to_supermatrix(superX1, xx);
 				arma_wrapper(dgstrs)(options.Trans, L, U, perm_c, perm_r, &superX1, stat, info);
-				p_hat=xx;
+				p_hat = xx;
 				// p_hat.print("p_hat");
 				sp_auxlib::destroy_supermatrix(superX1);
 
-				v=A*p_hat;
+				v = A * p_hat;
 				// v.print("v");
-				alpha=rho/dot(r_tld,v);
-				x=x+alpha*p_hat;
+				alpha = rho / dot(r_tld, v);
+				x = x + alpha * p_hat;
 				// x.print("x");
-				s=r-alpha*v;
+				s = r - alpha * v;
 				// s.print("s");
-				*err=norm(s)/bnrm2;
-				if (*err<tol){					
+				*err = norm(s) / bnrm2;
+				if (*err < tol) {
 					break;
 				}
 
-				xx=s;
-				arma::superlu::SuperMatrix superX2;  arrayops::inplace_set(reinterpret_cast<char*>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
+				xx = s;
+				arma::superlu::SuperMatrix superX2;
+				arrayops::inplace_set(reinterpret_cast<char *>(&superX2), char(0), sizeof(arma::superlu::SuperMatrix));
 
 				const bool status_x2 = sp_auxlib::wrap_to_supermatrix(superX2, xx);
 				arma_wrapper(dgstrs)(options.Trans, L, U, perm_c, perm_r, &superX2, stat, info);
-				s_hat=xx;
+				s_hat = xx;
 				sp_auxlib::destroy_supermatrix(superX2);
 
-				t=A*s_hat;
+				t = A * s_hat;
 				// t.print("t");
-				omega=dot(t,s)/dot(t,t);
-				x=x+omega*s_hat;
+				omega = dot(t, s) / dot(t, t);
+				x = x + omega * s_hat;
 				// x.print("x");
-				r=s-omega*t;
+				r = s - omega * t;
 				// r.print("r");
-				*err=norm(r)/bnrm2;
+				*err = norm(r) / bnrm2;
 
-				if((*err)<=tol){
+				if ((*err) <= tol) {
 					break;
 				}
-				if (omega==0.0){
+				if (omega == 0.0) {
 					break;
 				}
-				rho_1=rho;
+				rho_1 = rho;
 			}
 			// x.print("x_internal");
 
-			vec chk=b-A*x;
+			vec chk = b - A * x;
 			// chk.print("chk");
 
-			if((*err)<=tol||all(s<=tol)){
-				if (all(s<=tol)){
-					*err=norm(s)/bnrm2;
+			if ((*err) <= tol || all(s <= tol)) {
+				if (all(s <= tol)) {
+					*err = norm(s) / bnrm2;
 				}
-				*flag=0;
-			}else if(omega==0.0){
-				*flag=-2;
-			}else if (rho=0.0){
-				*flag=-1;
-			}else{
-				*flag=1;
+				*flag = 0;
+			} else if (omega == 0.0) {
+				*flag = -2;
+			} else if (rho = 0.0) {
+				*flag = -1;
+			} else {
+				*flag = 1;
 			}
-			
 		}
 
-
-		// static void bicgstab2(const sp_mat& A, vec& x, vec& b, arma::superlu::trans_t trans, 
-		// 	arma::superlu::SuperMatrix *L, arma::superlu::SuperMatrix *U,int * perm_c, int *perm_r, 
+		// static void bicgstab2(const sp_mat& A, vec& x, vec& b, arma::superlu::trans_t trans,
+		// 	arma::superlu::SuperMatrix *L, arma::superlu::SuperMatrix *U,int * perm_c, int *perm_r,
 		// 	arma::superlu::SuperLUStat_t *stat, int *info, int max_it, double tol, double* err, int* iter, int* flag){
-			
+
 		// 	*iter =0;
 		// 	*flag=0;
 		// 	double bnrm2=norm(b);
@@ -479,13 +473,13 @@ namespace che {
 		// 	double rho=1.0;
 		// 	double alpha=0.0;
 		// 	vec p,v,s,t;
-			
+
 		// 	superlu_opts superlu_opts_default;
 		// 	arma::superlu::superlu_options_t  options;
 		// 	sp_auxlib::set_superlu_opts(options, superlu_opts_default);
 		// 	options.IterRefine=arma::superlu::NOREFINE;
 		// 	options.RefineInitialized=arma::superlu::NO;
-			
+
 		// 	for(;*iter<max_it;*iter+=1){
 		// 		// iteration of the algorithm
 		// 		rho = sum(r_tld%r);
@@ -498,7 +492,7 @@ namespace che {
 		// 		}else{
 		// 			p=r;
 		// 		}
-				
+
 		// 		vec xx=p;
 		// 		arma::superlu::SuperMatrix superX1;  arrayops::inplace_set(reinterpret_cast<char*>(&superX1), char(0), sizeof(arma::superlu::SuperMatrix));
 
@@ -555,13 +549,13 @@ namespace che {
 		// 	}else{
 		// 		*flag=1;
 		// 	}
-			
+
 		// }
 
-		CheSolution* ChePfCalculator::getCheSolution() {
+		CheSolution *ChePfCalculator::getCheSolution() {
 			int nlvl = compOpt.nLvl;
 
-			CheSingleEmbedSystem* embSys = cheList.back();
+			CheSingleEmbedSystem *embSys = cheList.back();
 			chedata::PsatDataSet baseSys(embSys->baseSys);
 			double sAlpha = embSys->startAlpha;
 			CheStateIdx stateIdx = embSys->initState.stateIdx;
@@ -603,33 +597,34 @@ namespace che {
 
 			if (baseSys.nPl > 0) {
 				pVec(C_IDX(baseSys.get_pls_busNumber_vec())) -= baseSys.get_pls_P_vec() %
-					conv_to<vec>::from(baseSys.get_pls_status_vec());
+																conv_to<vec>::from(baseSys.get_pls_status_vec());
 				qVec(C_IDX(baseSys.get_pls_busNumber_vec())) -= baseSys.get_pls_Q_vec() %
-					conv_to<vec>::from(baseSys.get_pls_status_vec());
+																conv_to<vec>::from(baseSys.get_pls_status_vec());
 			}
 			vec pVec0 = sAlpha * pVec;
 			vec qVec0 = sAlpha * qVec;
-			//qVec0(ipv) = embSys->initState.getSubVec(stateIdx.qIdx)(ipv);
+			// qVec0(ipv) = embSys->initState.getSubVec(stateIdx.qIdx)(ipv);
 			vec VspSq2(nbus, fill::zeros);
 			VspSq2(ipv) = vMagVec(ipv) - 1;
 			VspSq2(isw) = vMagVec(isw) - 1;
 
-			cx_mat V(nbus, nlvl+1, fill::zeros);
+			cx_mat V(nbus, nlvl + 1, fill::zeros);
 			cx_vec V0(embSys->initState.getSubVec(stateIdx.vrIdx), embSys->initState.getSubVec(stateIdx.viIdx));
 			V.col(0) = V0;
-			V(isw, uvec(1).fill(1)) = cx_vec(baseSys.get_sws_vMag_vec() % cos(datum::pi / 180.0*baseSys.get_sws_vAng_vec()),
-				baseSys.get_sws_vMag_vec() % sin(datum::pi / 180.0*baseSys.get_sws_vAng_vec())) - 1;
-			cx_mat W(nbus, nlvl+1, fill::zeros);
+			V(isw, uvec(1).fill(1)) = cx_vec(baseSys.get_sws_vMag_vec() % cos(datum::pi / 180.0 * baseSys.get_sws_vAng_vec()),
+											 baseSys.get_sws_vMag_vec() % sin(datum::pi / 180.0 * baseSys.get_sws_vAng_vec())) -
+									  1;
+			cx_mat W(nbus, nlvl + 1, fill::zeros);
 			W.col(0) = 1 / V0;
-			mat P(nbus, nlvl+1, fill::zeros);
+			mat P(nbus, nlvl + 1, fill::zeros);
 			P.col(0) = pVec0;
-			mat Q(nbus, nlvl+1, fill::zeros);
+			mat Q(nbus, nlvl + 1, fill::zeros);
 			mat Qxtra(nbus, nlvl + 1, fill::zeros);
 			Q.col(0) = embSys->initState.getSubVec(stateIdx.qIdx);
 			Qxtra.col(0) = qVec0;
 			P.col(1) = pVec;
 			Qxtra.col(1) = qVec;
-			//Q(find(busType != 0), regspace<uvec>(1, nlvl)).fill(0.);
+			// Q(find(busType != 0), regspace<uvec>(1, nlvl)).fill(0.);
 
 			vec C0 = real(V.col(0));
 			vec D0 = imag(V.col(0));
@@ -655,7 +650,7 @@ namespace che {
 			DEBUG_PRINT_MAT(P0M)
 			DEBUG_PRINT_MAT(Q0M)
 
-			//Ind
+			// Ind
 			int nInd = baseSys.nInd > 0 ? baseSys.nInd : 0;
 			uvec indIdx = C_IDX(baseSys.get_inds_busNumber_vec());
 			vec s0 = embSys->initState.getSubVec(stateIdx.sIdx);
@@ -676,10 +671,10 @@ namespace che {
 
 			cx_vec Z1(R1, X1);
 			cx_vec Ym(0 / Xm, -sAlpha / Xm);
-			cx_vec cIndTemp = R2 % Ym + s0 % (Ym%cx_vec(0.*X2, X2) + 1);
-			IL.col(0) = V0(indIdx) % cIndTemp / (cx_vec(R2, s0%X2) + Z1 % cIndTemp);
+			cx_vec cIndTemp = R2 % Ym + s0 % (Ym % cx_vec(0. * X2, X2) + 1);
+			IL.col(0) = V0(indIdx) % cIndTemp / (cx_vec(R2, s0 % X2) + Z1 % cIndTemp);
 			Vm.col(0) = V0(indIdx) - IL.col(0) % Z1;
-			IR.col(0) = Vm.col(0) % s0 / cx_vec(R2, s0%X2);
+			IR.col(0) = Vm.col(0) % s0 / cx_vec(R2, s0 % X2);
 
 			vec J0 = real(IR.col(0));
 			vec K0 = imag(IR.col(0));
@@ -698,7 +693,7 @@ namespace che {
 			DEBUG_PRINT_MAT(Be)
 			DEBUG_PRINT_MAT(kg1e)
 			DEBUG_PRINT_MAT(kb1e)
-			
+
 			vector<mat> LHS_MatInd_Full;
 			vector<mat> RHS_C_Shr;
 			mat LHS_MatInd_Shr(nInd, 4, fill::zeros);
@@ -706,11 +701,11 @@ namespace che {
 
 			for (int i = 0; i < nInd; i++) {
 				mat LHS_MatInd(5, 7);
-				LHS_MatInd << R2(i) << -X2(i)*s0(i) << R1(i)*s0(i) << -X1(i)*s0(i) << -K0(i)*X2(i) - C0(indIdx(i)) + JL0(i)*R1(i) - KL0(i)*X1(i) << -s0(i) << 0.0 << endr
-					<< X2(i)*s0(i) << R2(i) << X1(i)*s0(i) << R1(i)*s0(i) << J0(i)*X2(i) - D0(indIdx(i)) + JL0(i)*X1(i) + KL0(i)*R1(i) << 0.0 << -s0(i) << endr
-					<< C0(indIdx(i)) - JL0(i)*R1(i) + KL0(i)*X1(i) << D0(indIdx(i)) - KL0(i)*R1(i) - JL0(i)*X1(i) << -J0(i)*R1(i) - K0(i)*X1(i) << -K0(i)*R1(i) + J0(i)*X1(i) << -sAlpha * (T1(i) + 2. * T2(i)*s0(i)) << J0(i) << K0(i) << endr
-					<< -1. << 0. << 1. + kg1e(i) << -kb1e(i) << 0. << -Ge(i) << Be(i) << endr
-					<< 0. << -1. << kb1e(i) << 1. + kg1e(i) << 0. << -Be(i) << -Ge(i) << endr;
+				LHS_MatInd << R2(i) << -X2(i) * s0(i) << R1(i) * s0(i) << -X1(i) * s0(i) << -K0(i) * X2(i) - C0(indIdx(i)) + JL0(i) * R1(i) - KL0(i) * X1(i) << -s0(i) << 0.0 << endr
+						   << X2(i) * s0(i) << R2(i) << X1(i) * s0(i) << R1(i) * s0(i) << J0(i) * X2(i) - D0(indIdx(i)) + JL0(i) * X1(i) + KL0(i) * R1(i) << 0.0 << -s0(i) << endr
+						   << C0(indIdx(i)) - JL0(i) * R1(i) + KL0(i) * X1(i) << D0(indIdx(i)) - KL0(i) * R1(i) - JL0(i) * X1(i) << -J0(i) * R1(i) - K0(i) * X1(i) << -K0(i) * R1(i) + J0(i) * X1(i) << -sAlpha * (T1(i) + 2. * T2(i) * s0(i)) << J0(i) << K0(i) << endr
+						   << -1. << 0. << 1. + kg1e(i) << -kb1e(i) << 0. << -Ge(i) << Be(i) << endr
+						   << 0. << -1. << kb1e(i) << 1. + kg1e(i) << 0. << -Be(i) << -Ge(i) << endr;
 				mat MatIndA = LHS_MatInd(span::all, span(0, 4));
 				mat MatIndB = LHS_MatInd(span::all, span(5, 6));
 				mat MatInvA = inv(MatIndA);
@@ -725,7 +720,6 @@ namespace che {
 				RHS_C_Shr.push_back(MatInvA);
 				LHS_MatInd_Full.push_back(MadCDtoRest);
 				LHS_MatInd_Shr.row(i) = MadCDtoRest.rows(span(2, 3)).as_row();
-
 			}
 			LHS_MatInd_Bus.rows(indIdx) += LHS_MatInd_Shr;
 
@@ -736,7 +730,7 @@ namespace che {
 			DEBUG_PRINT_MAT(LHS_MatInd_Shr)
 			DEBUG_PRINT_MAT(LHS_MatInd_Bus)
 
-			//ZIP
+			// ZIP
 			int nZip = baseSys.nPl > 0 ? baseSys.nPl : 0;
 			uvec zipIdx = C_IDX(baseSys.get_pls_busNumber_vec());
 			cx_mat IiL(nZip, nlvl + 1, fill::zeros);
@@ -752,10 +746,10 @@ namespace che {
 			BiL.col(0) = Bi0;
 			vec Ci0 = real(V0(zipIdx));
 			vec Di0 = imag(V0(zipIdx));
-			mat LHS_MatZip = join_rows(sAlpha*JI / Bi0 - Ci0 % Ji0L / Bi0 / Bi0,
-				-sAlpha * KI / Bi0 - Di0 % Ji0L / Bi0 / Bi0,
-				sAlpha*KI / Bi0 - Ci0 % Ki0L / Bi0 / Bi0,
-				sAlpha*JI / Bi0 - Di0 % Ki0L / Bi0 / Bi0);
+			mat LHS_MatZip = join_rows(sAlpha * JI / Bi0 - Ci0 % Ji0L / Bi0 / Bi0,
+									   -sAlpha * KI / Bi0 - Di0 % Ji0L / Bi0 / Bi0,
+									   sAlpha * KI / Bi0 - Ci0 % Ki0L / Bi0 / Bi0,
+									   sAlpha * JI / Bi0 - Di0 % Ki0L / Bi0 / Bi0);
 			mat Mat_BZip = join_rows(Ci0 / Bi0, Di0 / Bi0);
 
 			DEBUG_PRINT_MAT(Bi0)
@@ -764,9 +758,8 @@ namespace che {
 			DEBUG_PRINT_MAT(LHS_MatZip)
 			DEBUG_PRINT_MAT(Mat_BZip)
 
-
-			//Syn
-			int nSyn= baseSys.nSyn > 0 ? baseSys.nSyn : 0;
+			// Syn
+			int nSyn = baseSys.nSyn > 0 ? baseSys.nSyn : 0;
 			uvec synIdx = C_IDX(baseSys.get_syns_busNumber_vec());
 			vec Rs = baseSys.get_syns_ra_vec();
 			vec Xd = baseSys.get_syns_xd_vec();
@@ -781,7 +774,7 @@ namespace che {
 			mat Ef(nSyn, nlvl + 1, fill::zeros);
 			vec d0 = embSys->initState.getSubVec(stateIdx.mDeltaIdx);
 			vec Ef0 = embSys->initState.getSubVec(stateIdx.mEfIdx);
-			vec Efd = 0.0*Ef0;
+			vec Efd = 0.0 * Ef0;
 			vec Efq = Ef0;
 			vec cosd = cos(d0);
 			vec sind = sin(d0);
@@ -789,9 +782,9 @@ namespace che {
 			vec Dg = D0(synIdx);
 			vec Vd = sind % Cg - cosd % Dg;
 			vec Vq = cosd % Cg + sind % Dg;
-			vec Id = (Rs % (Efd - Vd) + Xq % (Efq - Vq)) / (Rs%Rs + Xq % Xd);
-			vec Iq = (-Xd % (Efd - Vd) + Rs % (Efq - Vq)) / (Rs%Rs + Xq % Xd);
-			cx_vec IG0(sind%Id + cosd % Iq, -cosd % Id + sind % Iq);
+			vec Id = (Rs % (Efd - Vd) + Xq % (Efq - Vq)) / (Rs % Rs + Xq % Xd);
+			vec Iq = (-Xd % (Efd - Vd) + Rs % (Efq - Vq)) / (Rs % Rs + Xq % Xd);
+			cx_vec IG0(sind % Id + cosd % Iq, -cosd % Id + sind % Iq);
 			d.col(0) = d0;
 			JG.col(0) = real(IG0);
 			KG.col(0) = imag(IG0);
@@ -833,15 +826,15 @@ namespace che {
 			DEBUG_PRINT_MAT(Ef)
 			DEBUG_PRINT_MAT(Pm)
 
-			int nTaylor = 4; //Will be moved to a simulation setting structure
+			int nTaylor = 4; // Will be moved to a simulation setting structure
 			mat cosp = getTaylorPolynomialsCos(d0, nTaylor);
 			mat sinp = getTaylorPolynomialsSin(d0, nTaylor);
 
 			vec A1n(nSyn, fill::zeros);
 			vec B1n(nSyn, fill::zeros);
 			for (int i = 0; i < nTaylor; i++) {
-				A1n = A1n % d0 + (nTaylor - i)*cosp.col(nTaylor - i);
-				B1n = B1n % d0 + (nTaylor - i)*sinp.col(nTaylor - i);
+				A1n = A1n % d0 + (nTaylor - i) * cosp.col(nTaylor - i);
+				B1n = B1n % d0 + (nTaylor - i) * sinp.col(nTaylor - i);
 			}
 			DEBUG_PRINT_MAT(cosp)
 			DEBUG_PRINT_MAT(sinp)
@@ -855,7 +848,7 @@ namespace che {
 			uvec synRegIdx = regspace<uvec>(0, nSyn - 1);
 			sp_mat mAuxIsland(true, join_rows(synRegIdx, synByIsland).t(), pSharex, nSyn, nIslands);
 			mat mAuxIslandFull(abs(mAuxIsland));
-			uvec idxBal(0,fill::zeros);
+			uvec idxBal(0, fill::zeros);
 			if (!mAuxIslandFull.empty()) {
 				idxBal = index_max(mAuxIslandFull, 0).t();
 			}
@@ -866,9 +859,9 @@ namespace che {
 			sp_mat MatG2C(true, join_rows(synRegIdx, synIdx).t(), Sd0, nSyn, nbus);
 			sp_mat MatG2D(true, join_rows(synRegIdx, synIdx).t(), -Cd0, nSyn, nbus);
 			sp_mat MatG5AC(true, join_rows(join_cols(synRegIdx, synRegIdx), join_cols(synIdx, synIdx(idxBalSyn))).t(),
-				join_cols(-pSharex(idxBalSyn) % JG0, JG0(idxBalSyn) % pSharex), nSyn, nbus);
+						   join_cols(-pSharex(idxBalSyn) % JG0, JG0(idxBalSyn) % pSharex), nSyn, nbus);
 			sp_mat MatG5AD(true, join_rows(join_cols(synRegIdx, synRegIdx), join_cols(synIdx, synIdx(idxBalSyn))).t(),
-				join_cols(-pSharex(idxBalSyn) % KG0, KG0(idxBalSyn) % pSharex), nSyn, nbus);
+						   join_cols(-pSharex(idxBalSyn) % KG0, KG0(idxBalSyn) % pSharex), nSyn, nbus);
 			sp_mat MatG5BC(nSyn, nbus);
 			sp_mat MatG5BD(nSyn, nbus);
 			for (int i = 0; i < idxBal.n_rows; i++) {
@@ -876,39 +869,39 @@ namespace che {
 				MatG5AD.row(idxBal(i)) = MatG5BD.row(i); // sparse matrix does not allow non-contiguous indexing
 			}
 
-			sp_mat MatG1J(true, join_rows(synRegIdx, synRegIdx).t(), Rs%Cd0 + Xd % Sd0, nSyn, nSyn);
-			sp_mat MatG1K(true, join_rows(synRegIdx, synRegIdx).t(), Rs%Sd0 - Xd % Cd0, nSyn, nSyn);
+			sp_mat MatG1J(true, join_rows(synRegIdx, synRegIdx).t(), Rs % Cd0 + Xd % Sd0, nSyn, nSyn);
+			sp_mat MatG1K(true, join_rows(synRegIdx, synRegIdx).t(), Rs % Sd0 - Xd % Cd0, nSyn, nSyn);
 			sp_mat MatG1d(true, join_rows(synRegIdx, synRegIdx).t(),
-				(CG0 + Rs % JG0 - Xd % KG0) % A1n + (DG0 + Rs % KG0 + Xd % JG0) % B1n, nSyn, nSyn);
-			sp_mat MatG2J(true, join_rows(synRegIdx, synRegIdx).t(), Rs%Sd0 - Xq % Cd0, nSyn, nSyn);
-			sp_mat MatG2K(true, join_rows(synRegIdx, synRegIdx).t(), -Rs%Cd0 - Xq % Sd0, nSyn, nSyn);
+						  (CG0 + Rs % JG0 - Xd % KG0) % A1n + (DG0 + Rs % KG0 + Xd % JG0) % B1n, nSyn, nSyn);
+			sp_mat MatG2J(true, join_rows(synRegIdx, synRegIdx).t(), Rs % Sd0 - Xq % Cd0, nSyn, nSyn);
+			sp_mat MatG2K(true, join_rows(synRegIdx, synRegIdx).t(), -Rs % Cd0 - Xq % Sd0, nSyn, nSyn);
 			sp_mat MatG2d(true, join_rows(synRegIdx, synRegIdx).t(),
-				(-DG0 - Rs % KG0 - Xq % JG0) % A1n + (CG0 + Rs % JG0 - Xq % KG0) % B1n, nSyn, nSyn);
+						  (-DG0 - Rs % KG0 - Xq % JG0) % A1n + (CG0 + Rs % JG0 - Xq % KG0) % B1n, nSyn, nSyn);
 			sp_mat MatG5AJ(true, join_rows(join_cols(synRegIdx, synRegIdx), join_cols(synRegIdx, idxBalSyn)).t(),
-				join_cols(-pSharex(idxBalSyn) % (CG0 + 2.0*JG0%Rs), (CG0(idxBalSyn) + 2.0*JG0(idxBalSyn) % Rs(idxBalSyn)) % pSharex), nSyn, nSyn);
+						   join_cols(-pSharex(idxBalSyn) % (CG0 + 2.0 * JG0 % Rs), (CG0(idxBalSyn) + 2.0 * JG0(idxBalSyn) % Rs(idxBalSyn)) % pSharex), nSyn, nSyn);
 			sp_mat MatG5AK(true, join_rows(join_cols(synRegIdx, synRegIdx), join_cols(synRegIdx, idxBalSyn)).t(),
-				join_cols(-pSharex(idxBalSyn) % (DG0 + 2.0*KG0%Rs), (DG0(idxBalSyn) + 2.0*KG0(idxBalSyn) % Rs(idxBalSyn)) % pSharex), nSyn, nSyn);
+						   join_cols(-pSharex(idxBalSyn) % (DG0 + 2.0 * KG0 % Rs), (DG0(idxBalSyn) + 2.0 * KG0(idxBalSyn) % Rs(idxBalSyn)) % pSharex), nSyn, nSyn);
 			sp_mat MatG5Ad(nSyn, nSyn);
 			sp_mat MatG5BJ(nIslands, nSyn);
 			sp_mat MatG5BK(nIslands, nSyn);
 			sp_mat MatG5Bd(true, join_rows(synByIsland, synRegIdx).t(), Ms, nIslands, nSyn);
-						
+
 			if (nSyn > 1) {
 				for (int i = 0; i < nIslands; i++) {
 					MatG5AJ.row(idxBal(i)) = MatG5BJ.row(i);
 					MatG5AK.row(idxBal(i)) = MatG5BK.row(i);
 					MatG5Ad.row(idxBal(i)) = MatG5Bd.row(i);
 				}
-			}				
+			}
 
 			sp_mat MatGA = join_cols(join_rows(MatG1C, MatG1D),
-				join_rows(MatG2C, MatG2D), join_rows(MatG5AC, MatG5AD));
+									 join_rows(MatG2C, MatG2D), join_rows(MatG5AC, MatG5AD));
 			sp_mat MatGB = join_cols(join_rows(MatG1J, MatG1K, MatG1d),
-				join_rows(MatG2J, MatG2K, MatG2d), join_rows(MatG5AJ, MatG5AK, MatG5Ad));
+									 join_rows(MatG2J, MatG2K, MatG2d), join_rows(MatG5AJ, MatG5AK, MatG5Ad));
 			sp_mat MatGBiA(-spsolve(MatGB, mat(MatGA)));
 			sp_mat GTrMat(true, join_rows(synIdx, synRegIdx).t(), vec(nSyn, fill::ones), nbus, nSyn);
 			sp_mat MatGTrans = join_cols(join_rows(GTrMat, sp_mat(nbus, nSyn), sp_mat(nbus, nSyn)),
-				join_rows(sp_mat(nbus, nSyn), GTrMat, sp_mat(nbus, nSyn)));
+										 join_rows(sp_mat(nbus, nSyn), GTrMat, sp_mat(nbus, nSyn)));
 			sp_mat MatGCD = MatGTrans * MatGBiA;
 
 			DEBUG_PRINT_MAT(pSharex)
@@ -1000,64 +993,69 @@ namespace che {
 			sp_mat CDMx = join_cols(join_rows(CM, -DM), join_rows(DM, CM));*/
 
 			sp_mat YEFx = join_cols(-CheCompUtil::sp_submatrix<double>(F0M, idxNonSw, ipv), -CheCompUtil::sp_submatrix<double>(E0M, idxNonSw, ipv));
-			sp_mat YCDx= join_rows(
+			sp_mat YCDx = join_rows(
 				CheCompUtil::sp_submatrix<double>(C0M, ipv, idxNonSw),
 				CheCompUtil::sp_submatrix<double>(D0M, ipv, idxNonSw),
 				sp_mat(npv, npv));
 
 			sp_mat LHS_mat = join_cols(
-				join_rows(YLHSx,YEFx),
+				join_rows(YLHSx, YEFx),
 				YCDx);
 
 			// superlu settings
 			superlu_opts superlu_opts_default;
-			arma::superlu::superlu_options_t  options;
+			arma::superlu::superlu_options_t options;
 			sp_auxlib::set_superlu_opts(options, superlu_opts_default);
-			options.IterRefine=arma::superlu::NOREFINE;
-			options.RefineInitialized=arma::superlu::NO;
-					
-			const sp_mat& A =   LHS_mat;
-			
-			arma::superlu::SuperMatrix superX;  arrayops::inplace_set(reinterpret_cast<char*>(&superX), char(0), sizeof(arma::superlu::SuperMatrix));
-			arma::superlu::SuperMatrix superA;  arrayops::inplace_set(reinterpret_cast<char*>(&superA), char(0), sizeof(arma::superlu::SuperMatrix));
-			arma::superlu::SuperMatrix superB;  arrayops::inplace_set(reinterpret_cast<char*>(&superB), char(0), sizeof(arma::superlu::SuperMatrix));
-			const bool status_a = sp_auxlib::copy_to_supermatrix(superA, A);
-			arma::superlu::SuperMatrix superL;  arrayops::inplace_set(reinterpret_cast<char*>(&superL), char(0), sizeof(arma::superlu::SuperMatrix));
-			arma::superlu::SuperMatrix superU;  arrayops::inplace_set(reinterpret_cast<char*>(&superU), char(0), sizeof(arma::superlu::SuperMatrix));
+			options.IterRefine = arma::superlu::NOREFINE;
+			options.RefineInitialized = arma::superlu::NO;
 
-			int* perm_c = (int*)arma::superlu::malloc((A.n_cols + 1) * sizeof(int));  
-			int* perm_r = (int*)arma::superlu::malloc((A.n_rows + 1) * sizeof(int));
-    		int* etree  = (int*) arma::superlu::malloc( (A.n_cols+1) * sizeof(int) );
-			double* R    = (double*) arma::superlu::malloc( (A.n_rows+1) * sizeof(double) );
-			double* C    = (double*) arma::superlu::malloc( (A.n_cols+1) * sizeof(double) );
-			double* ferr = (double*) arma::superlu::malloc( (1+1) * sizeof(double) );
-			double* berr = (double*) arma::superlu::malloc( (1+1) * sizeof(double) );
+			const sp_mat &A = LHS_mat;
+
+			arma::superlu::SuperMatrix superX;
+			arrayops::inplace_set(reinterpret_cast<char *>(&superX), char(0), sizeof(arma::superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superA;
+			arrayops::inplace_set(reinterpret_cast<char *>(&superA), char(0), sizeof(arma::superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superB;
+			arrayops::inplace_set(reinterpret_cast<char *>(&superB), char(0), sizeof(arma::superlu::SuperMatrix));
+			const bool status_a = sp_auxlib::copy_to_supermatrix(superA, A);
+			arma::superlu::SuperMatrix superL;
+			arrayops::inplace_set(reinterpret_cast<char *>(&superL), char(0), sizeof(arma::superlu::SuperMatrix));
+			arma::superlu::SuperMatrix superU;
+			arrayops::inplace_set(reinterpret_cast<char *>(&superU), char(0), sizeof(arma::superlu::SuperMatrix));
+
+			int *perm_c = (int *)arma::superlu::malloc((A.n_cols + 1) * sizeof(int));
+			int *perm_r = (int *)arma::superlu::malloc((A.n_rows + 1) * sizeof(int));
+			int *etree = (int *)arma::superlu::malloc((A.n_cols + 1) * sizeof(int));
+			double *R = (double *)arma::superlu::malloc((A.n_rows + 1) * sizeof(double));
+			double *C = (double *)arma::superlu::malloc((A.n_cols + 1) * sizeof(double));
+			double *ferr = (double *)arma::superlu::malloc((1 + 1) * sizeof(double));
+			double *berr = (double *)arma::superlu::malloc((1 + 1) * sizeof(double));
 			arrayops::inplace_set(perm_c, 0, A.n_cols + 1);
 			arrayops::inplace_set(perm_r, 0, A.n_rows + 1);
 			arrayops::inplace_set(etree, 0, A.n_cols + 1);
 
-			arrayops::inplace_set(R,    double(0), A.n_rows+1);
-			arrayops::inplace_set(C,    double(0), A.n_cols+1);
-			arrayops::inplace_set(ferr, double(0), 1+1);
-			arrayops::inplace_set(berr, double(0), 1+1);
-    
+			arrayops::inplace_set(R, double(0), A.n_rows + 1);
+			arrayops::inplace_set(C, double(0), A.n_cols + 1);
+			arrayops::inplace_set(ferr, double(0), 1 + 1);
+			arrayops::inplace_set(berr, double(0), 1 + 1);
+
 			arma::superlu::GlobalLU_t glu;
-			arrayops::inplace_set(reinterpret_cast<char*>(&glu), char(0), sizeof(arma::superlu::GlobalLU_t));
-			
-			arma::superlu::mem_usage_t  mu;
-			arrayops::inplace_set(reinterpret_cast<char*>(&mu), char(0), sizeof(arma::superlu::mem_usage_t));
-    
+			arrayops::inplace_set(reinterpret_cast<char *>(&glu), char(0), sizeof(arma::superlu::GlobalLU_t));
+
+			arma::superlu::mem_usage_t mu;
+			arrayops::inplace_set(reinterpret_cast<char *>(&mu), char(0), sizeof(arma::superlu::mem_usage_t));
+
 			arma::superlu::SuperLUStat_t stat;
 			arma::superlu::init_stat(&stat);
 
-			char equed[8];       // extra characters for paranoia
-			double rpg   = double(0);
+			char equed[8]; // extra characters for paranoia
+			double rpg = double(0);
 			double rcond = double(0);
 			int superInfo = 0; // Return code.
-			
-			char  work[8];
-			int  lwork = int(0);  // 0 means superlu will allocate memory
-    
+
+			char work[8];
+			int lwork = int(0); // 0 means superlu will allocate memory
+
 			DEBUG_PRINT_MAT(LHS_mat)
 			// LOOP Body
 			for (int lvl = 0; lvl < nlvl; lvl++) {
@@ -1073,18 +1071,19 @@ namespace che {
 				vec RHSILr(nbus, fill::zeros);
 				vec RHSILi(nbus, fill::zeros);
 
-				//LOOP-Ind
+				// LOOP-Ind
 				mat rhsBus(nInd, 5, fill::zeros);
 				cx_vec rhsM = sum(Vm.cols(seq2R.col(0)) % s.cols(seq2R.col(1)), 1) +
-					cx_vec(0.0*X2, -X2) % sum(IR.cols(seq2R.col(0)) % s.cols(seq2R.col(1)), 1);
+							  cx_vec(0.0 * X2, -X2) % sum(IR.cols(seq2R.col(0)) % s.cols(seq2R.col(1)), 1);
 				vec rhsImod = T1 % s.col(lvl) +
-					T2 % sum(s.cols(seq2m.col(0)) % s.cols(seq2m.col(1)), 1) +
-					sAlpha * T2%sum(s.cols(seq2R.col(0)) % s.cols(seq2R.col(1)), 1) -
-					real(sum(V(indIdx, seq2R.col(0)) % conj(IR.cols(seq2R.col(1))), 1)) +
-					real(sum(IL.cols(seq2R.col(0)) % conj(IR.cols(seq2R.col(1))), 1) % Z1);
-				if (lvl == 0) rhsImod += T0;
-				cx_vec rhsIL = V(indIdx, uvec(1).fill(lvl)).as_col()%Yeind1-
-					IL.col(lvl) % Ye1ind1;
+							  T2 % sum(s.cols(seq2m.col(0)) % s.cols(seq2m.col(1)), 1) +
+							  sAlpha * T2 % sum(s.cols(seq2R.col(0)) % s.cols(seq2R.col(1)), 1) -
+							  real(sum(V(indIdx, seq2R.col(0)) % conj(IR.cols(seq2R.col(1))), 1)) +
+							  real(sum(IL.cols(seq2R.col(0)) % conj(IR.cols(seq2R.col(1))), 1) % Z1);
+				if (lvl == 0)
+					rhsImod += T0;
+				cx_vec rhsIL = V(indIdx, uvec(1).fill(lvl)).as_col() % Yeind1 -
+							   IL.col(lvl) % Ye1ind1;
 				for (int i = 0; i < nInd; i++) {
 					vec tempRhsInd(5);
 					tempRhsInd << real(rhsM(i)) << imag(rhsM(i)) << rhsImod(i) << real(rhsIL(i)) << imag(rhsIL(i));
@@ -1092,23 +1091,24 @@ namespace che {
 				}
 				RHSILr(indIdx) += rhsBus.col(2);
 				RHSILi(indIdx) += rhsBus.col(3);
-				//DEBUG_PRINT_MAT(RHSILr)
-				DEBUG_PRINT_MAT(rhsM)  //TODO: DEBUG this
-				DEBUG_PRINT_MAT(rhsImod)  //TODO: DEBUG this
-				DEBUG_PRINT_MAT(rhsIL)  //TODO: DEBUG this
-				DEBUG_PRINT_MAT(RHSILi)  //TODO: DEBUG this
+				// DEBUG_PRINT_MAT(RHSILr)
+				DEBUG_PRINT_MAT(rhsM)	 // TODO: DEBUG this
+				DEBUG_PRINT_MAT(rhsImod) // TODO: DEBUG this
+				DEBUG_PRINT_MAT(rhsIL)	 // TODO: DEBUG this
+				DEBUG_PRINT_MAT(RHSILi)	 // TODO: DEBUG this
 
-				//LOOP-Zip
+				// LOOP-Zip
 				vec RHSIiLr(nbus, fill::zeros);
 				vec RHSIiLi(nbus, fill::zeros);
 
-				vec RHS_BZip = (real(sum(V(zipIdx, seq2R.col(0)) % conj(V(zipIdx, seq2R.col(1))), 1)) - 
-					sum(BiL.cols(seq2R.col(0)) % BiL.cols(seq2R.col(1)), 1)) / Bi0 / 2.0;
+				vec RHS_BZip = (real(sum(V(zipIdx, seq2R.col(0)) % conj(V(zipIdx, seq2R.col(1))), 1)) -
+								sum(BiL.cols(seq2R.col(0)) % BiL.cols(seq2R.col(1)), 1)) /
+							   Bi0 / 2.0;
 				cx_vec RHZ_BIConv = sum(IiL.cols(seq2R.col(0)) % BiL.cols(seq2R.col(1)), 1);
-				vec RHSIiLr_full = (JI%real(V(zipIdx, uvec(1).fill(lvl)).as_col()) - KI % imag(V(zipIdx, uvec(1).fill(lvl)).as_col()))/Bi0 -
-					real(RHZ_BIConv) / Bi0 - Ji0L % RHS_BZip / Bi0;
-				vec RHSIiLi_full = (KI%real(V(zipIdx, uvec(1).fill(lvl)).as_col()) + JI % imag(V(zipIdx, uvec(1).fill(lvl)).as_col()))/Bi0 -
-					imag(RHZ_BIConv) / Bi0 - Ki0L % RHS_BZip / Bi0;
+				vec RHSIiLr_full = (JI % real(V(zipIdx, uvec(1).fill(lvl)).as_col()) - KI % imag(V(zipIdx, uvec(1).fill(lvl)).as_col())) / Bi0 -
+								   real(RHZ_BIConv) / Bi0 - Ji0L % RHS_BZip / Bi0;
+				vec RHSIiLi_full = (KI % real(V(zipIdx, uvec(1).fill(lvl)).as_col()) + JI % imag(V(zipIdx, uvec(1).fill(lvl)).as_col())) / Bi0 -
+								   imag(RHZ_BIConv) / Bi0 - Ki0L % RHS_BZip / Bi0;
 				RHSIiLr(zipIdx) += RHSIiLr_full;
 				RHSIiLi(zipIdx) += RHSIiLi_full;
 				DEBUG_PRINT_MAT(RHS_BZip)
@@ -1117,7 +1117,7 @@ namespace che {
 				DEBUG_PRINT_MAT(RHSIiLr_full)
 				DEBUG_PRINT_MAT(RHSIiLi_full)
 
-				//LOOP-Syn
+				// LOOP-Syn
 				vec RHSIGr(nbus, fill::zeros);
 				vec RHSIGi(nbus, fill::zeros);
 
@@ -1154,13 +1154,14 @@ namespace che {
 				vec KSr = sum(KG.cols(seq2R.col(0)) % Sd.cols(seq2R.col(1)), 1);
 
 				vec RHSIG1 = Ef.col(lvl + 1) - (CCr + DSr + Rs % (JCr + KSr) + Xd % (JSr - KCr)) -
-					(CG0 + Rs % JG0 - Xd % KG0) % AG0 - (DG0 + Rs % KG0 + Xd % JG0) % BG0;
-				vec RHSIG2 = - (CSr - DCr + Rs % (JSr - KCr) - Xq % (JCr + KSr)) -
-					(-DG0 - Rs % KG0 - Xq % JG0) % AG0 - (CG0 + Rs % JG0 - Xq % KG0) % BG0;
+							 (CG0 + Rs % JG0 - Xd % KG0) % AG0 - (DG0 + Rs % KG0 + Xd % JG0) % BG0;
+				vec RHSIG2 = -(CSr - DCr + Rs % (JSr - KCr) - Xq % (JCr + KSr)) -
+							 (-DG0 - Rs % KG0 - Xq % JG0) % AG0 - (CG0 + Rs % JG0 - Xq % KG0) % BG0;
 				vec RHSIG3temp = -Pm.col(lvl + 1) +
-					sum(real(V(synIdx, seq2R.col(0)) % cx_mat(JG.cols(seq2R.col(1)), -KG.cols(seq2R.col(1)))), 1) +
-					(sum(JG.cols(seq2R.col(0)) % JG.cols(seq2R.col(1)), 1) +
-						sum(KG.cols(seq2R.col(0)) % KG.cols(seq2R.col(1)), 1)) % Rs;
+								 sum(real(V(synIdx, seq2R.col(0)) % cx_mat(JG.cols(seq2R.col(1)), -KG.cols(seq2R.col(1)))), 1) +
+								 (sum(JG.cols(seq2R.col(0)) % JG.cols(seq2R.col(1)), 1) +
+								  sum(KG.cols(seq2R.col(0)) % KG.cols(seq2R.col(1)), 1)) %
+									 Rs;
 				vec RHSIG3 = pShare(idxBalSyn) % RHSIG3temp - RHSIG3temp(idxBalSyn) % pShare;
 				RHSIG3(idxBal).fill(0.);
 				vec RHSIG = spsolve(MatGB, join_cols(RHSIG1, RHSIG2, RHSIG3));
@@ -1172,9 +1173,9 @@ namespace che {
 				DEBUG_PRINT_MAT(Q)
 				DEBUG_PRINT_MAT(W)
 				DEBUG_PRINT_MAT(Ysh)
-				cx_vec RHS1 = sum(cx_mat(-P.cols(seq2.col(0)), Q.cols(seq2.col(0))+ Qxtra.cols(seq2.col(0))) % conj(W.cols(seq2.col(1))), 1) +
-					Ysh %V.col(lvl);
-				vec RHS2 = -0.5*real(sum(V.cols(seq2.col(0)) % conj(V.cols(seq2.col(1))), 1));
+				cx_vec RHS1 = sum(cx_mat(-P.cols(seq2.col(0)), Q.cols(seq2.col(0)) + Qxtra.cols(seq2.col(0))) % conj(W.cols(seq2.col(1))), 1) +
+							  Ysh % V.col(lvl);
+				vec RHS2 = -0.5 * real(sum(V.cols(seq2.col(0)) % conj(V.cols(seq2.col(1))), 1));
 				cx_vec RHS3 = sum(-W.cols(seq2.col(0)) % V.cols(seq2.col(1)), 1);
 				/*DEBUG_PRINT_MAT(AG0)
 				DEBUG_PRINT_MAT(BG0)
@@ -1193,18 +1194,19 @@ namespace che {
 				vec RHS3xr = PCQD % RHS3r + PDQC % RHS3i;
 				vec RHS3xi = PDQC % RHS3r - PCQD % RHS3i;
 
-				if (lvl == 0) RHS2 += 0.5*VspSq2;
+				if (lvl == 0)
+					RHS2 += 0.5 * VspSq2;
 
 				cx_vec compactRHS1 = RHS1(idxNonSw);
-				compactRHS1 += CheCompUtil::sp_submatrix<cx_double>(Y, idxNonSw, isw)*V(isw, uvec(1).fill(lvl + 1));
+				compactRHS1 += CheCompUtil::sp_submatrix<cx_double>(Y, idxNonSw, isw) * V(isw, uvec(1).fill(lvl + 1));
 				/*vec RHS = join_cols(
 					join_cols(real(compactRHS1) + RHSILr(idxNonSw) + RHSIiLr(idxNonSw) - RHSIGr(idxNonSw),
 						imag(compactRHS1) + RHSILi(idxNonSw) + RHSIiLi(idxNonSw) - RHSIGi(idxNonSw)),
 					RHS2(ipv),
 					join_cols(real(RHS3(idxNonSw)), imag(RHS3(idxNonSw))));*/
-				vec RHS= join_cols(
-					join_cols(real(compactRHS1) + RHSILr(idxNonSw) + RHSIiLr(idxNonSw) - RHSIGr(idxNonSw)-RHS3xr(idxNonSw),
-						imag(compactRHS1) + RHSILi(idxNonSw) + RHSIiLi(idxNonSw) - RHSIGi(idxNonSw) - RHS3xi(idxNonSw)),
+				vec RHS = join_cols(
+					join_cols(real(compactRHS1) + RHSILr(idxNonSw) + RHSIiLr(idxNonSw) - RHSIGr(idxNonSw) - RHS3xr(idxNonSw),
+							  imag(compactRHS1) + RHSILi(idxNonSw) + RHSIiLi(idxNonSw) - RHSIGi(idxNonSw) - RHS3xi(idxNonSw)),
 					RHS2(ipv));
 
 				DEBUG_PRINT_MAT(RHS1)
@@ -1216,61 +1218,60 @@ namespace che {
 				opts.allow_ugly = true;
 				opts.equilibrate = true;
 				opts.refine = superlu_opts::REF_NONE;
-				//vec x = spsolve(LHS_mat, RHS, "superlu",opts);
-				
+				// vec x = spsolve(LHS_mat, RHS, "superlu",opts);
+
 				vec cb = RHS;
-				const mat& B=cb;
-				vec x=RHS;
-				// x.zeros(A.n_cols, B.n_cols); 
+				const mat &B = cb;
+				vec x = RHS;
+				// x.zeros(A.n_cols, B.n_cols);
 				// vec xx=spsolve(LHS_mat,RHS);
 				// xx.print("xx");
 
 				const bool status_x = sp_auxlib::wrap_to_supermatrix(superX, x);
 				const bool status_b = sp_auxlib::wrap_to_supermatrix(superB, B);
-				bool use_iter_solver=0;
+				bool use_iter_solver = 0;
 				if (lvl == 0) {
-					if(this->perm_c==NULL){
-						options.ColPerm=arma::superlu::COLAMD;
-					}else{
+					if (this->perm_c == NULL) {
+						options.ColPerm = arma::superlu::COLAMD;
+					} else {
 						// TODO - rygx: work with arma team to fix the enum slip issue
-						options.ColPerm=static_cast<arma::superlu::colperm_t>(8); // This represents the MY_PERMC in SuperLu 6.0
-						arrayops::copy(perm_c,this->perm_c,A.n_cols + 1);
+						options.ColPerm = static_cast<arma::superlu::colperm_t>(8); // This represents the MY_PERMC in SuperLu 6.0
+						arrayops::copy(perm_c, this->perm_c, A.n_cols + 1);
 					}
-					options.Fact=arma::superlu::DOFACT;
-					if(this->perm_r==NULL||this->etree==NULL||true){
-						options.Fact=arma::superlu::DOFACT;
-					}else{
-						options.Fact=arma::superlu::SamePattern;
-						arrayops::copy(perm_r,this->perm_r,A.n_rows + 1);
-						arrayops::copy(etree,this->etree,A.n_cols + 1);
+					options.Fact = arma::superlu::DOFACT;
+					if (this->perm_r == NULL || this->etree == NULL || true) {
+						options.Fact = arma::superlu::DOFACT;
+					} else {
+						options.Fact = arma::superlu::SamePattern;
+						arrayops::copy(perm_r, this->perm_r, A.n_rows + 1);
+						arrayops::copy(etree, this->etree, A.n_cols + 1);
 					}
-										
+
 					arma_wrapper(dgssvx)(&options, &superA, perm_c, perm_r, etree, equed, R, C, &superL, &superU, &work[0], lwork, &superB, &superX, &rpg, &rcond, ferr, berr, &glu, &mu, &stat, &superInfo);
-					
-					if(this->perm_c==NULL){
-						this->perm_c=new int[A.n_cols + 1];
+
+					if (this->perm_c == NULL) {
+						this->perm_c = new int[A.n_cols + 1];
 					}
-					if(this->perm_r==NULL){
-						this->perm_r=new int[A.n_rows + 1];
+					if (this->perm_r == NULL) {
+						this->perm_r = new int[A.n_rows + 1];
 					}
-					if(this->etree==NULL){
-						this->etree=new int[A.n_cols + 1];
+					if (this->etree == NULL) {
+						this->etree = new int[A.n_cols + 1];
 					}
-					arrayops::copy(this->perm_c,perm_c,A.n_cols + 1);
-					arrayops::copy(this->perm_r,perm_r,A.n_rows + 1);
-					arrayops::copy(this->etree,etree,A.n_cols + 1);
-				}
-				else {									
-					arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);					
+					arrayops::copy(this->perm_c, perm_c, A.n_cols + 1);
+					arrayops::copy(this->perm_r, perm_r, A.n_rows + 1);
+					arrayops::copy(this->etree, etree, A.n_cols + 1);
+				} else {
+					arma_wrapper(dgstrs)(options.Trans, &superL, &superU, perm_c, perm_r, &superX, &stat, &superInfo);
 				}
 
-				// x.print("x");	
+				// x.print("x");
 
-				V(idxNonSw, uvec(1).fill(lvl + 1)) = 
-					cx_vec(x(span(0, npq + npv - 1)), x(span(npq + npv, 2*(npq + npv) - 1)));
+				V(idxNonSw, uvec(1).fill(lvl + 1)) =
+					cx_vec(x(span(0, npq + npv - 1)), x(span(npq + npv, 2 * (npq + npv) - 1)));
 				Q(ipv, uvec(1).fill(lvl + 1)) = x.tail(npv);
 
-				vec Cx = real(V.col(lvl+1));
+				vec Cx = real(V.col(lvl + 1));
 				vec Dx = imag(V.col(lvl + 1));
 				vec RHS3xxr = RHS3r - E0 % Cx + F0 % Dx;
 				vec RHS3xxi = RHS3i - F0 % Cx - E0 % Dx;
@@ -1282,7 +1283,7 @@ namespace che {
 				DEBUG_PRINT_MAT(W)
 				DEBUG_PRINT_MAT(Q)
 
-				//Aux Ind
+				// Aux Ind
 				for (int i = 0; i < nInd; i++) {
 					vec tempvi(2);
 					tempvi << real(V(indIdx(i), lvl + 1)) << imag(V(indIdx(i), lvl + 1));
@@ -1290,22 +1291,22 @@ namespace che {
 					IL(i, lvl + 1) = cx_double(tempx(2), tempx(3));
 					IR(i, lvl + 1) = cx_double(tempx(0), tempx(1));
 					s(i, lvl + 1) = tempx(4);
-					Vm(i, lvl + 1) = V(indIdx(i), lvl + 1) - IL(i, lvl + 1)*Z1(i);
+					Vm(i, lvl + 1) = V(indIdx(i), lvl + 1) - IL(i, lvl + 1) * Z1(i);
 				}
 
-				//Aux Zip
+				// Aux Zip
 				IiL.col(lvl + 1) = cx_vec(LHS_MatZip.col(0), LHS_MatZip.col(2)) % real(V(zipIdx, uvec(1).fill(lvl + 1))) +
-					cx_vec(LHS_MatZip.col(1), LHS_MatZip.col(3)) % imag(V(zipIdx, uvec(1).fill(lvl + 1))) +
-					cx_vec(RHSIiLr_full, RHSIiLi_full);
+								   cx_vec(LHS_MatZip.col(1), LHS_MatZip.col(3)) % imag(V(zipIdx, uvec(1).fill(lvl + 1))) +
+								   cx_vec(RHSIiLr_full, RHSIiLi_full);
 				BiL.col(lvl + 1) = Mat_BZip.col(0) % real(V(zipIdx, uvec(1).fill(lvl + 1))) +
-					Mat_BZip.col(1) % imag(V(zipIdx, uvec(1).fill(lvl + 1))) +
-					RHS_BZip;
+								   Mat_BZip.col(1) % imag(V(zipIdx, uvec(1).fill(lvl + 1))) +
+								   RHS_BZip;
 
-				//Aux Syn
+				// Aux Syn
 				vec IGJKd = MatGBiA * join_cols(real(V.col(lvl + 1)), imag(V.col(lvl + 1))) + RHSIG;
 				if (nSyn > 0) {
-					JG.col(lvl + 1) = IGJKd(span(0, nSyn-1));
-					KG.col(lvl + 1) = IGJKd(span(nSyn, 2*nSyn - 1));
+					JG.col(lvl + 1) = IGJKd(span(0, nSyn - 1));
+					KG.col(lvl + 1) = IGJKd(span(nSyn, 2 * nSyn - 1));
 					d.col(lvl + 1) = IGJKd(span(2 * nSyn, 3 * nSyn - 1));
 					Cd.col(lvl + 1) = A1n % d.col(lvl + 1) + AG0;
 					Sd.col(lvl + 1) = B1n % d.col(lvl + 1) + BG0;
@@ -1320,19 +1321,18 @@ namespace che {
 				DEBUG_PRINT_MAT(KG)
 				DEBUG_PRINT_MAT(d)
 				DEBUG_PRINT_MAT(Cd)
-				DEBUG_PRINT_MAT(Sd)
-				;
+				DEBUG_PRINT_MAT(Sd);
 			}
 
-			CheSolution* psol = new CheSolutionPade(stateIdx.nState, nlvl + 1);
+			CheSolution *psol = new CheSolutionPade(stateIdx.nState, nlvl + 1);
 			psol->solution.rows(stateIdx.vrIdx) = real(V);
 			psol->solution.rows(stateIdx.viIdx) = imag(V);
 			psol->solution.rows(stateIdx.qIdx) = Q;
 			psol->solution.rows(stateIdx.sIdx) = s;
 			psol->solution.rows(stateIdx.mDeltaIdx) = d;
 			psol->solution.rows(stateIdx.mPgIdx) = Pm;
-			psol->solution.rows(stateIdx.mEfIdx) = Ef;			
-			
+			psol->solution.rows(stateIdx.mEfIdx) = Ef;
+
 			arma::superlu::free_stat(&stat);
 
 			arma::superlu::free(berr);
@@ -1352,7 +1352,7 @@ namespace che {
 			return psol;
 		}
 
-		CheSingleEmbedSystem* ChePfCalculator::getNewStage() {
+		CheSingleEmbedSystem *ChePfCalculator::getNewStage() {
 			return NULL;
 		}
 
@@ -1370,20 +1370,20 @@ namespace che {
 			int maxCount = 10;
 			int maxNoMove = 5;
 			int noMove = 0;
-			CheSolution* pSol = NULL;
+			CheSolution *pSol = NULL;
 
-			CheSingleEmbedSystem* pInitSystem = this->getInitSystem(baseSys);
+			CheSingleEmbedSystem *pInitSystem = this->getInitSystem(baseSys);
 			this->cheList.push_back(pInitSystem);
-			CheSingleEmbedSystem* lastEmbeddedSys = NULL;
+			CheSingleEmbedSystem *lastEmbeddedSys = NULL;
 
 			while (alphaConfirm < 1 - alphaTol / 1000.0) {
 				alpha = 1 - alphaConfirm;
-				if (alpha>segment){
-					alpha=segment;
+				if (alpha > segment) {
+					alpha = segment;
 				}
 				alphax = alpha / alphaPreMult;
-				CheSingleEmbedSystem* pCurrEmbeddedSys = this->cheList.back();
-				if (lastEmbeddedSys != pCurrEmbeddedSys || pSol==NULL) {
+				CheSingleEmbedSystem *pCurrEmbeddedSys = this->cheList.back();
+				if (lastEmbeddedSys != pCurrEmbeddedSys || pSol == NULL) {
 					pSol = this->getCheSolution();
 				}
 
@@ -1405,23 +1405,21 @@ namespace che {
 					absDiff = max(abs(diff));
 					if (absDiff < diffTol && abs(alphax - alpha / alphaPreMult) < alphaTol / 1000.0) {
 						alphaLeft = alphaRight;
-					}
-					else {
+					} else {
 						if (absDiff < diffTol) {
 							alphaLeft = alphax;
 							alphax = (alphaLeft + alphaRight) / 2.0;
-						}
-						else {
+						} else {
 							alphaRight = alphax;
 							alphax = (alphaLeft + alphaRight) / 2.0;
 						}
 					}
-					double alphaTolTemp=0.03*alphaRight;
-					if (alphaTolTemp<alphaTol){
-						alphaTolTemp=alphaTol;
+					double alphaTolTemp = 0.03 * alphaRight;
+					if (alphaTolTemp < alphaTol) {
+						alphaTolTemp = alphaTol;
 					}
 
-					if (abs(alphaRight - alphaLeft) < alphaTolTemp){
+					if (abs(alphaRight - alphaLeft) < alphaTolTemp) {
 						break;
 					}
 				}
@@ -1433,10 +1431,10 @@ namespace che {
 					alphax = alpha;
 				}
 
-				while (countCheckAlpha < maxCount){
+				while (countCheckAlpha < maxCount) {
 					vec diff = pCurrEmbeddedSys->calcEqBalance(pSol, alphax);
 					absDiff = max(abs(diff));
-					if (absDiff < 1.05*diffParadigm) {
+					if (absDiff < 1.05 * diffParadigm) {
 						break;
 					}
 					alphax *= alphaPreMult;
@@ -1447,24 +1445,24 @@ namespace che {
 				}
 				alpha = alphax;
 				alphaConfirm += alpha;
-				cout << "Step=" <<alphaConfirm<<", added="<<alpha<<", (maxDiff<"<<diffTol<<")."<< endl;
+				cout << "Step=" << alphaConfirm << ", added=" << alpha << ", (maxDiff<" << diffTol << ")." << endl;
 
 				if (alpha == 0.0) {
 					cout << "Step did not move!" << endl;
 					noMove++;
 					if (noMove >= maxNoMove) {
 						cout << "Reached consecutive max no move, exit!" << endl;
-						if(pSol!=NULL){
+						if (pSol != NULL) {
 							delete pSol;
-							pSol=NULL;
+							pSol = NULL;
 						}
 						break;
 					}
 					if (diffTol >= diffTolMax) {
 						cout << "Max DiffTol reached and not move, exit!" << endl;
-						if(pSol!=NULL){
+						if (pSol != NULL) {
 							delete pSol;
-							pSol=NULL;
+							pSol = NULL;
 						}
 						break;
 					}
@@ -1472,42 +1470,39 @@ namespace che {
 					if (absDiff > diffTol) {
 						diffTol = absDiff;
 					}
-					cout << "Enlarge tol! (Tol=" <<diffTol<<")."<< endl;
-					if(pSol!=NULL){
+					cout << "Enlarge tol! (Tol=" << diffTol << ")." << endl;
+					if (pSol != NULL) {
 						delete pSol;
-						pSol=NULL;
+						pSol = NULL;
 					}
-				}
-				else {
+				} else {
 					noMove = 0;
 					CheState curState(pCurrEmbeddedSys->baseSys, pSol->getSolValue(alpha));
-					CheSingleEmbedSystem* nextSystem = pCurrEmbeddedSys->getNewEmbeddedSystem(curState, alpha);
+					CheSingleEmbedSystem *nextSystem = pCurrEmbeddedSys->getNewEmbeddedSystem(curState, alpha);
 					this->cheList.push_back(nextSystem);
 					this->solList.push_back(pSol);
 				}
-
 			}
 
 			if (alphaConfirm >= 1 - alphaTol / 1000.0) {
 				this->reachesMaxAlpha = true;
 				return 0;
-			}
-			else {
+			} else {
 				this->reachesMaxAlpha = false;
 				return -1;
 			}
 		}
 
-		CheState ChePfCalculator::exportResult(){
+		CheState ChePfCalculator::exportResult() {
 			return cheList.back()->initState;
 		}
 
-		void ChePfCalculator::writeMatFile(const char *fileName,double interval){
+		void ChePfCalculator::writeMatFile(const char *fileName, double interval) {
 			this->writeMatFile(fileName);
 		}
 
-		void ChePfCalculator::writeMatFile(const char *fileName){
-			vec result=cheList.back()->initState.state;
+		void ChePfCalculator::writeMatFile(const char *fileName) {
+			vec result = cheList.back()->initState.state;
 
 			mat solutionMat(result.n_rows, 1, fill::zeros);
 			solutionMat.col(0) = result;
@@ -1516,19 +1511,15 @@ namespace che {
 			matvar_t *matvar;
 			size_t dims[2] = {solutionMat.n_rows, solutionMat.n_cols};
 			matfp = Mat_CreateVer(fileName, NULL, MAT_FT_DEFAULT);
-			if (NULL == matfp)
-			{
+			if (NULL == matfp) {
 				cerr << "Error creating MAT file \"" << fileName << "\"." << endl;
 				return;
 			}
 
 			matvar = Mat_VarCreate("s", MAT_C_DOUBLE, MAT_T_DOUBLE, 2, dims, solutionMat.memptr(), 0);
-			if (NULL == matvar)
-			{
+			if (NULL == matvar) {
 				cerr << "Error creating variable for ’s’." << endl;
-			}
-			else
-			{
+			} else {
 				Mat_VarWrite(matfp, matvar, MAT_COMPRESSION_NONE);
 				Mat_VarFree(matvar);
 			}
@@ -1536,21 +1527,20 @@ namespace che {
 			Mat_Close(matfp);
 		}
 
-		
-		ChePfCalculator::~ChePfCalculator(){
-			if(perm_c!=NULL){
-				delete [] perm_c;
-				perm_c=NULL;
+		ChePfCalculator::~ChePfCalculator() {
+			if (perm_c != NULL) {
+				delete[] perm_c;
+				perm_c = NULL;
 			}
-			if(perm_r!=NULL){
-				delete [] perm_r;
-				perm_r=NULL;
+			if (perm_r != NULL) {
+				delete[] perm_r;
+				perm_r = NULL;
 			}
-			if(etree!=NULL){
-				delete [] etree;
-				etree=NULL;
+			if (etree != NULL) {
+				delete[] etree;
+				etree = NULL;
 			}
-			
+
 			// if(perm_ci!=NULL){
 			// 	delete [] perm_ci;
 			// 	perm_ci=NULL;
@@ -1564,5 +1554,5 @@ namespace che {
 			// 	etreei=NULL;
 			// }
 		}
-	}
-}
+	} // namespace core
+} // namespace che

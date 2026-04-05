@@ -1,0 +1,16 @@
+name: Lint
+run-name: ${{ github.actor }} Lint check
+on: [push, pull_request]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: pip install clang-format==22.1.2
+
+      - name: Check formatting
+        run: bash scripts/format.sh --check

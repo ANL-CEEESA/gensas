@@ -4,26 +4,26 @@
 // Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
 // By: Argonne National Laboratory
 // OPEN SOURCE LICENSE
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-// 
-// 
+//
+//
 // ******************************************************************************************************
 // DISCLAIMER
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
-// 
+//
 #include "util/AbstractCheCalculator.h"
 #include "pf/ChePFCalculator.h"
 #include "io/MatPsatDataRW.h"
@@ -49,7 +49,7 @@ using namespace nvwa;
 #endif
 
 #ifdef WIN32
-#define __DIR__ std::string(__FILE__).substr(0,std::string(__FILE__).find_last_of("\\"))
+#define __DIR__ std::string(__FILE__).substr(0, std::string(__FILE__).find_last_of("\\"))
 #elif defined linux
 #define __DIR__ (std::getenv("PWD"))
 #else
@@ -63,7 +63,7 @@ using namespace nvwa;
 #include <unistd.h>
 #define GetCurrentDir getcwd
 #endif
-#include<iostream>
+#include <iostream>
 
 // #define new DEBUG_NEW
 
@@ -76,8 +76,7 @@ std::string GetCurrentWorkingDir(void) {
 	return current_working_dir;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
 	string compMode = argv[1];
 	cout << "compMode=" << compMode << endl;
@@ -103,141 +102,84 @@ int main(int argc, char **argv)
 		const double MIN_ERRTOL = 1e-10;
 		const double MAX_OUTSTEP = 1;
 		const double MIN_OUTSTEP = 1e-3;
-		string input = ""; 
+		string input = "";
 		string output = "";
 		string jsonOutput = "";
 		//	parsing command line arguments
-		for (int iArg = 2; iArg < argc; iArg++)
-		{
+		for (int iArg = 2; iArg < argc; iArg++) {
 			string arg = argv[iArg];
-			if (arg == "--mode" || arg == "-m")
-			{
-				if (++iArg < argc)
-				{
+			if (arg == "--mode" || arg == "-m") {
+				if (++iArg < argc) {
 					string subArg = argv[iArg];
-					if (subArg == "file")
-					{
+					if (subArg == "file") {
 						fileMode = true;
-					}
-					else if (subArg == "string")
-					{
+					} else if (subArg == "string") {
 						fileMode = false;
-					}
-					else
-					{
+					} else {
 						cerr << "Mode name [file|string] should be specified after --mode or -m. Using string as default." << endl;
 					}
-				}
-				else
-				{
+				} else {
 					cerr << "Mode name [file|string] should be specified after --mode or -m. Using string as default." << endl;
 				}
-			}
-			else if (arg == "--input" || arg == "-i")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--input" || arg == "-i") {
+				if (++iArg < argc) {
 					input = argv[iArg];
-				}
-				else
-				{
+				} else {
 					cerr << "Input should be specified after --input or -i. Using empty string as default." << endl;
 					input = "";
 				}
-			}
-			else if (arg == "--output" || arg == "-o")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--output" || arg == "-o") {
+				if (++iArg < argc) {
 					output = argv[iArg];
-				}
-				else
-				{
+				} else {
 					cerr << "Output should be specified after --output or -o. Using empty string as default." << endl;
 					output = "";
 				}
-			}
-			else if (arg == "--json" || arg == "-j")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--json" || arg == "-j") {
+				if (++iArg < argc) {
 					jsonOutput = argv[iArg];
 					writeJson = true;
-				}
-				else
-				{
+				} else {
 					cerr << "JSON output should be specified after --json or -j. Using empty string as default." << endl;
 					jsonOutput = "";
 				}
-			}
-			else if (arg == "--time" || arg == "-t")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--time" || arg == "-t") {
+				if (++iArg < argc) {
 					options.endTime = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "Simulation length (s) should be specified after --time or -t. Using default value " << options.endTime << "." << endl;
 				}
-			}
-			else if (arg == "--level" || arg == "-l")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--level" || arg == "-l") {
+				if (++iArg < argc) {
 					options.nLvl = stoi(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "SAS order --level or -l. Using default value " << options.nLvl << "." << endl;
 				}
-			}
-			else if (arg == "--atol" || arg == "-a")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--atol" || arg == "-a") {
+				if (++iArg < argc) {
 					options.alphaTol = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "Alpha tolerance should be specified after --atol or -a. Using default value " << options.alphaTol << "." << endl;
 				}
-			}
-			else if (arg == "--segment" || arg == "-s")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--segment" || arg == "-s") {
+				if (++iArg < argc) {
 					options.segment = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "Segment length should be specified after --segment or -s. Using default value " << options.segment << "." << endl;
 				}
-			}
-			else if (arg == "--etol" || arg == "-e")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--etol" || arg == "-e") {
+				if (++iArg < argc) {
 					options.errorTol = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "Error tolerance should be specified after --etol or -e. Using default value " << options.errorTol << "." << endl;
 				}
-			}
-			else if (arg == "--step" || arg == "-k")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--step" || arg == "-k") {
+				if (++iArg < argc) {
 					outStep = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "Output step should be specified after --step or -k. Using default value " << outStep << "." << endl;
 				}
-			}
-			else if (arg == "--verbose" || arg == "-v")
-			{
+			} else if (arg == "--verbose" || arg == "-v") {
 				verbose = true;
 			}
 		}
@@ -262,12 +204,12 @@ int main(int argc, char **argv)
 			options.segment = MIN_SEGMENT;
 		}
 
-		if (options.alphaTol > MAX_ALPHA_IN_SEG*options.segment) {
+		if (options.alphaTol > MAX_ALPHA_IN_SEG * options.segment) {
 			cout << "Alpha tolerance are limited up to " << MAX_ALPHA_IN_SEG * options.segment << " s." << endl;
 			options.alphaTol = MAX_ALPHA_IN_SEG * options.segment;
 		}
 
-		if (options.alphaTol < MIN_ALPHA_IN_SEG*options.segment) {
+		if (options.alphaTol < MIN_ALPHA_IN_SEG * options.segment) {
 			cout << "Alpha tolerance must be at least " << MIN_ALPHA_IN_SEG * options.segment << " s." << endl;
 			options.alphaTol = MIN_ALPHA_IN_SEG * options.segment;
 		}
@@ -296,17 +238,13 @@ int main(int argc, char **argv)
 		pctimer_t stTime = pctimer();
 
 		SasModelParser parser;
-		if (fileMode)
-		{
+		if (fileMode) {
 			parser.parseFromFile(input.c_str());
-		}
-		else
-		{
+		} else {
 			if (input.length() >= 2) {
 				cout << input.substr(1, input.length() - 2).c_str() << endl;
 				parser.parseString(input.substr(1, input.length() - 2).c_str());
-			}
-			else {
+			} else {
 				cout << input.c_str() << endl;
 				parser.parseString(input.c_str());
 			}
@@ -318,8 +256,7 @@ int main(int argc, char **argv)
 
 		parser.currentModel = GlobalPool::getInstance().createNewTopModel();
 		parseSingleSasModel(&parser);
-		if (parser.errCount > 0)
-		{
+		if (parser.errCount > 0) {
 			cerr << "Error: Parsing model has errors." << endl;
 			return -1;
 		}
@@ -330,8 +267,7 @@ int main(int argc, char **argv)
 		// check if all the ids are initialized, need to be repacked in the future.
 		list<shared_ptr<SasModel>>::iterator modelIt;
 		int nonInitCnt = 0;
-		for (modelIt = compModel.topModels.begin(); modelIt != compModel.topModels.end(); modelIt++)
-		{
+		for (modelIt = compModel.topModels.begin(); modelIt != compModel.topModels.end(); modelIt++) {
 			list<shared_ptr<IdPearl>>::iterator idIt;
 			for (idIt = (*modelIt)->idTable.begin(); idIt != (*modelIt)->idTable.end(); idIt++) {
 				IdType idt = (*idIt)->idTy;
@@ -347,15 +283,13 @@ int main(int argc, char **argv)
 		}
 		compModel.generateDAEs();
 
-		if (verbose)
-		{
+		if (verbose) {
 			cout << "Original model:" << endl;
 			parser.currentModel->printAllModelTrees();
 			cout << "Copied model:" << endl;
 
 			list<shared_ptr<SasModel>>::iterator modelIt;
-			for (modelIt = compModel.topModels.begin(); modelIt != compModel.topModels.end(); modelIt++)
-			{
+			for (modelIt = compModel.topModels.begin(); modelIt != compModel.topModels.end(); modelIt++) {
 				(*modelIt)->printAllModelTrees();
 				(*modelIt)->printIdTable();
 			}
@@ -381,17 +315,16 @@ int main(int argc, char **argv)
 
 		cout << "Computation time: " << endTime - stTime << " s." << endl;
 
-		if(writeJson){
+		if (writeJson) {
 			sasSolLink->writeJSONFile(jsonOutput.c_str(), outStep);
-			cout << "Json output written to file "<<jsonOutput<<"."<<endl;
+			cout << "Json output written to file " << jsonOutput << "." << endl;
 		}
 
 		delete sasSolLink;
 
 		return 0;
 
-	}
-	else if (compMode == "-p") {
+	} else if (compMode == "-p") {
 
 		string filePath = "";
 		string outputPath = "detault.mat";
@@ -401,95 +334,55 @@ int main(int argc, char **argv)
 		double diffTol = 1e-6;
 		double diffTolMax = 1e-2;
 		int repeat = 1;
-		for (int iArg = 2; iArg < argc; iArg++)
-		{
+		for (int iArg = 2; iArg < argc; iArg++) {
 			string arg = argv[iArg];
-			if (arg == "--file" || arg == "-f")
-			{
-				if (++iArg < argc)
-				{
+			if (arg == "--file" || arg == "-f") {
+				if (++iArg < argc) {
 					filePath = argv[iArg];
-				}
-				else
-				{
+				} else {
 					cerr << "File name should be specified after --file or -f." << endl;
 				}
-			}
-			else if (arg == "--level" || arg == "-l")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--level" || arg == "-l") {
+				if (++iArg < argc) {
 					nlvl = stoi(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "nlvl should be specified after --level or -l. Using nlvl=" << nlvl << " as default." << endl;
 				}
-			}
-			else if (arg == "--repeat" || arg == "-r")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--repeat" || arg == "-r") {
+				if (++iArg < argc) {
 					repeat = stoi(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "repeat should be specified after --repeat or -r. Using repeat=" << repeat << " as default." << endl;
 				}
-			}
-			else if (arg == "--segment" || arg == "-s")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--segment" || arg == "-s") {
+				if (++iArg < argc) {
 					segment = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "segment should be specified after --segment or -s. Using segment=" << segment << " as default." << endl;
 				}
-			}
-			else if (arg == "--alphatol" || arg == "-a")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--alphatol" || arg == "-a") {
+				if (++iArg < argc) {
 					alphaTol = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "alphaTol should be specified after --alphatol or -a. Using alphaTol=" << alphaTol << " as default." << endl;
 				}
-			}
-			else if (arg == "--difftol" || arg == "-d")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--difftol" || arg == "-d") {
+				if (++iArg < argc) {
 					diffTol = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "diffTol should be specified after --difftol or -d. Using diffTol=" << diffTol << " as default." << endl;
 				}
-			}
-			else if (arg == "--output" || arg == "-o")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--output" || arg == "-o") {
+				if (++iArg < argc) {
 					string subArg = argv[iArg];
 					outputPath = GetCurrentWorkingDir() + "/" + subArg;
-				}
-				else
-				{
+				} else {
 					cerr << "Output file name should be specified after --file or -f." << endl;
 				}
-			}
-			else if (arg == "--difftolmax" || arg == "-e")
-			{
-				if (++iArg < argc)
-				{
+			} else if (arg == "--difftolmax" || arg == "-e") {
+				if (++iArg < argc) {
 					diffTolMax = stod(argv[iArg]);
-				}
-				else
-				{
+				} else {
 					cerr << "diffTolMax should be specified after --difftolmax or -e. Using diffTolMax=" << diffTolMax << " as default." << endl;
 				}
 			}
@@ -525,14 +418,14 @@ int main(int argc, char **argv)
 		if (diffTolMax < 1e-4) {
 			diffTolMax = 1e-4;
 		}
-		if (diffTolMax < 100.0*diffTol) {
-			diffTolMax = 100.0*diffTol;
+		if (diffTolMax < 100.0 * diffTol) {
+			diffTolMax = 100.0 * diffTol;
 		}
 
 		chedata::MatPsatReader matReader;
 		chedata::PsatDataSet psatData;
 		//  string filePath = GetCurrentWorkingDir() + "/resources/psat_mat/d_dcase2383wp_mod2_ind_zip3.mat";
-		//string filePath = GetCurrentWorkingDir() + "/resources/psat_mat/d_014_ind_zip1.mat";
+		// string filePath = GetCurrentWorkingDir() + "/resources/psat_mat/d_014_ind_zip1.mat";
 		// string filePath = GetCurrentWorkingDir() + "/resources/psat_mat/d_ei_458_100.mat";
 		// string filePath = GetCurrentWorkingDir() + "/resources/psat_mat/d_dcase2383wp_mod2_zip9x.mat";
 		// string filePath = GetCurrentWorkingDir() + "/resources/psat_mat/d_70k.mat";
@@ -546,7 +439,7 @@ int main(int argc, char **argv)
 		pctimer_t totalTime = 0.;
 
 		for (int i = 0; i < repeat; i++) {
-			AbstractCheCalculator* pCalculator = new ChePfCalculator(psatData, compOpt, islands);
+			AbstractCheCalculator *pCalculator = new ChePfCalculator(psatData, compOpt, islands);
 			pctimer_t stTime = pctimer();
 			int pfFlag = pCalculator->calc();
 			pctimer_t endTime = pctimer();
@@ -561,11 +454,9 @@ int main(int argc, char **argv)
 
 		return 0;
 
-	}
-	else {
+	} else {
 
 		cerr << "The first arg should either be -g (general SAS) or -p (power flow)." << endl;
 		return 0;
 	}
-
 }

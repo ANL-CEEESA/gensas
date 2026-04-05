@@ -1,0 +1,36 @@
+---
+Language:               Cpp
+BasedOnStyle:           LLVM
+
+# Indentation: tabs, 4-space wide, all namespace levels indented
+IndentWidth:            4
+TabWidth:               4
+UseTab:                 Always
+ContinuationIndentWidth: 4
+NamespaceIndentation:   All
+
+# Access modifiers (public:/private:/protected:) sit at the class level,
+# one indent level less than the class body.
+AccessModifierOffset:   -4
+
+# K&R brace style: opening brace on the same line
+BreakBeforeBraces:      Attach
+
+# No hard column limit — existing code has very long lines in some places.
+# Tighten this once the codebase is otherwise clean.
+ColumnLimit:            0
+
+# Convert Windows CRLF to Unix LF
+LineEnding:             LF
+
+# Pointers and references attached to the name (right side)
+PointerAlignment:       Right
+ReferenceAlignment:     Right
+
+# Space before ( only for control-flow keywords (if, for, while, ...)
+SpaceBeforeParens:      ControlStatements
+
+# Preserve existing include order — compilation depends on it
+# (e.g. SafeArmadillo.h must be included before armadillo-dependent headers)
+SortIncludes:           Never
+IncludeBlocks:          Preserve
