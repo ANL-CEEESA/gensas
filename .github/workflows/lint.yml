@@ -13,4 +13,4 @@ jobs:
         run: sudo apt-get install -y clang-format-17
 
       - name: Check formatting
-        run: CLANG_FORMAT=clang-format-17 bash scripts/format.sh --check
+        run: bash scripts/format.sh --check

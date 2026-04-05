@@ -16,7 +16,17 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CLANG_FORMAT="${CLANG_FORMAT:-clang-format}"
+
+# Pinned version used by both this script and CI.
+# Override with: CLANG_FORMAT=/path/to/clang-format bash scripts/format.sh
+CLANG_FORMAT_VERSION=17
+CLANG_FORMAT="${CLANG_FORMAT:-clang-format-${CLANG_FORMAT_VERSION}}"
+
+# Fall back to unversioned binary if the versioned one isn't found.
+if ! command -v "${CLANG_FORMAT}" &>/dev/null; then
+  CLANG_FORMAT="clang-format"
+fi
+
 CHECK_ONLY=0
 
 # ── Parse arguments ──────────────────────────────────────────────────────────

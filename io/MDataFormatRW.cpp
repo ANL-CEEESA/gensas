@@ -450,8 +450,8 @@ namespace che {
 
 							if (tokenType == TK_NEWLINE) { // getting TK_NEWLINE means the end of the line.
 														   // SyntaxNode sNode = SyntaxNode(currToken, tokenType, pNode->pParent, SyntaxNode::s_exp_end);
-								// pNode->pParent->pChildren.push_back(&sNode);
-								// pNode = &sNode;
+														   // pNode->pParent->pChildren.push_back(&sNode);
+														   // pNode = &sNode;
 							} else if (tokenType == TK_KW_function) {
 
 							} else if (tokenType == TK_KW_end) {
