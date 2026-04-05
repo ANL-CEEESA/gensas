@@ -4,26 +4,26 @@
 // Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
 // By: Argonne National Laboratory
 // OPEN SOURCE LICENSE
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-// 
-// 
+//
+//
 // ******************************************************************************************************
 // DISCLAIMER
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
-// 
+//
 #include "io/MatPsatDataRW.h"
 #include "matio.h"
 #include <iostream>
@@ -31,7 +31,7 @@
 
 using namespace std;
 
-#define IND2(ir,ic,nr) ((ic)*(nr)+ir)
+#define IND2(ir, ic, nr) ((ic) * (nr) + ir)
 
 namespace che {
 	namespace io {
@@ -45,11 +45,11 @@ namespace che {
 			int MatPsatReader::parse(const char *filePath) {
 				mat_t *matfp;
 				matvar_t *matvar;
-				double* matdata;
+				double *matdata;
 
 				matfp = Mat_Open(filePath, MAT_ACC_RDONLY);
 				if (NULL == matfp) {
-					cerr << "Error opening MAT file \""<<filePath<<"\"!" << endl;
+					cerr << "Error opening MAT file \"" << filePath << "\"!" << endl;
 					return CHE_IO_FAIL;
 				}
 
@@ -59,12 +59,23 @@ namespace che {
 
 				// Read bus data
 				matvar = Mat_VarRead(matfp, "bus");
-				if (matvar == NULL) { cerr << "Does not contain bus data." << endl; return CHE_IO_FAIL; }
-				if (matvar->rank != 2) { cerr << "Bus data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-				if (matvar->dims[1] != 6) { cerr << "Expect 6 columns in bus data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+				if (matvar == NULL) {
+					cerr << "Does not contain bus data." << endl;
+					return CHE_IO_FAIL;
+				}
+				if (matvar->rank != 2) {
+					cerr << "Bus data rank not 2." << endl;
+					Mat_VarFree(matvar);
+					return CHE_IO_FAIL;
+				}
+				if (matvar->dims[1] != 6) {
+					cerr << "Expect 6 columns in bus data." << endl;
+					Mat_VarFree(matvar);
+					return CHE_IO_FAIL;
+				}
 
 				psatData->nBus = matvar->dims[0];
-				matdata = (double*)matvar->data;
+				matdata = (double *)matvar->data;
 				if (psatData->nBus > 0) {
 					psatData->buses = new Bus[psatData->nBus];
 					for (int row = 0; row < psatData->nBus; row++) {
@@ -82,11 +93,19 @@ namespace che {
 				// Read SW data
 				matvar = Mat_VarRead(matfp, "sw");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "SW data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 13) { cerr << "Expect 13 columns in SW data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "SW data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 13) {
+						cerr << "Expect 13 columns in SW data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nSw = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nSw > 0) {
 						psatData->sws = new SW[psatData->nSw];
 						for (int row = 0; row < psatData->nSw; row++) {
@@ -112,11 +131,19 @@ namespace che {
 				// Read PV data
 				matvar = Mat_VarRead(matfp, "pv");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "PV data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 11) { cerr << "Expect 11 columns in PV data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "PV data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 11) {
+						cerr << "Expect 11 columns in PV data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nPv = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nPv > 0) {
 						psatData->pvs = new PV[psatData->nPv];
 						for (int row = 0; row < psatData->nPv; row++) {
@@ -140,11 +167,19 @@ namespace che {
 				// Read PQ data
 				matvar = Mat_VarRead(matfp, "pq");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "PQ data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 9) { cerr << "Expect 9 columns in PQ data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "PQ data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 9) {
+						cerr << "Expect 9 columns in PQ data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nPq = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nPq > 0) {
 						psatData->pqs = new PQ[psatData->nPq];
 						for (int row = 0; row < psatData->nPq; row++) {
@@ -166,11 +201,19 @@ namespace che {
 				// Read Shunt data
 				matvar = Mat_VarRead(matfp, "shunt");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "Shunt data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 7) { cerr << "Expect 7 columns in Shunt data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "Shunt data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 7) {
+						cerr << "Expect 7 columns in Shunt data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nShunt = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nShunt > 0) {
 						psatData->shunts = new Shunt[psatData->nShunt];
 						for (int row = 0; row < psatData->nShunt; row++) {
@@ -190,11 +233,19 @@ namespace che {
 				// Read Line data
 				matvar = Mat_VarRead(matfp, "line");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "Line data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 16) { cerr << "Expect 16 columns in Line data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "Line data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 16) {
+						cerr << "Expect 16 columns in Line data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nLine = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nLine > 0) {
 						psatData->lines = new Line[psatData->nLine];
 						for (int row = 0; row < psatData->nLine; row++) {
@@ -223,11 +274,19 @@ namespace che {
 				// Read ZIP data
 				matvar = Mat_VarRead(matfp, "zip");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "Zip data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 12) { cerr << "Expect 12 columns in Zip data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "Zip data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 12) {
+						cerr << "Expect 12 columns in Zip data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nPl = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nPl > 0) {
 						psatData->pls = new Pl[psatData->nPl];
 						for (int row = 0; row < psatData->nPl; row++) {
@@ -252,11 +311,19 @@ namespace che {
 				// Read Syn data
 				matvar = Mat_VarRead(matfp, "syn");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "Syn data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] < 19) { cerr << "Expect >=19 columns in Syn data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "Syn data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] < 19) {
+						cerr << "Expect >=19 columns in Syn data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nSyn = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nSyn > 0) {
 						psatData->syns = new Syn[psatData->nSyn];
 						for (int row = 0; row < psatData->nSyn; row++) {
@@ -297,11 +364,19 @@ namespace che {
 				// Read Ind data
 				matvar = Mat_VarRead(matfp, "ind");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "Ind data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 20) { cerr << "Expect 20 columns in Ind data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "Ind data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 20) {
+						cerr << "Expect 20 columns in Ind data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nInd = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nInd > 0) {
 						psatData->inds = new Ind[psatData->nInd];
 						for (int row = 0; row < psatData->nInd; row++) {
@@ -334,11 +409,19 @@ namespace che {
 				// Read Tg data
 				matvar = Mat_VarRead(matfp, "tg");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "Tg data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] <8 ) { cerr << "Expect at least 8 columns in Tg data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "Tg data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] < 8) {
+						cerr << "Expect at least 8 columns in Tg data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nTg = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nTg > 0) {
 						psatData->tgs = new Tg[psatData->nTg];
 						for (int row = 0; row < psatData->nTg; row++) {
@@ -346,7 +429,11 @@ namespace che {
 							psatData->tgs[row].synNumber = (int)NEXT_C;
 							psatData->tgs[row].tgType = (unsigned char)NEXT_C;
 							if (psatData->tgs[row].tgType == 1) {
-								if (matvar->dims[1] < 11) { cerr << "Expect at least 11 columns in Tg1 data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+								if (matvar->dims[1] < 11) {
+									cerr << "Expect at least 11 columns in Tg1 data." << endl;
+									Mat_VarFree(matvar);
+									return CHE_IO_FAIL;
+								}
 								psatData->tgs[row].tgData.tg1.wref0 = NEXT_C;
 								psatData->tgs[row].tgData.tg1.R = NEXT_C;
 								psatData->tgs[row].tgData.tg1.Tmax = NEXT_C;
@@ -356,8 +443,7 @@ namespace che {
 								psatData->tgs[row].tgData.tg1.T3 = NEXT_C;
 								psatData->tgs[row].tgData.tg1.T4 = NEXT_C;
 								psatData->tgs[row].tgData.tg1.T5 = NEXT_C;
-							}
-							else if (psatData->tgs[row].tgType == 2) {
+							} else if (psatData->tgs[row].tgType == 2) {
 								psatData->tgs[row].tgData.tg2.wref0 = NEXT_C;
 								psatData->tgs[row].tgData.tg2.R = NEXT_C;
 								psatData->tgs[row].tgData.tg2.Tmax = NEXT_C;
@@ -365,9 +451,9 @@ namespace che {
 								psatData->tgs[row].tgData.tg2.T2 = NEXT_C;
 								psatData->tgs[row].tgData.tg2.T1 = NEXT_C;
 								col += 3;
-							}
-							else {
-								cerr << "Unknown Tg type." << endl; return CHE_IO_FAIL;
+							} else {
+								cerr << "Unknown Tg type." << endl;
+								return CHE_IO_FAIL;
 							}
 							psatData->tgs[row].status = (matvar->dims[1] >= 12) ? (unsigned char)NEXT_C : 1;
 						}
@@ -378,11 +464,19 @@ namespace che {
 				// Read Esc data
 				matvar = Mat_VarRead(matfp, "exc");
 				if (matvar != NULL) {
-					if (matvar->rank != 2) { cerr << "Exc data rank not 2." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
-					if (matvar->dims[1] != 14) { cerr << "Expect 14 columns in Exc data." << endl; Mat_VarFree(matvar); return CHE_IO_FAIL; }
+					if (matvar->rank != 2) {
+						cerr << "Exc data rank not 2." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
+					if (matvar->dims[1] != 14) {
+						cerr << "Expect 14 columns in Exc data." << endl;
+						Mat_VarFree(matvar);
+						return CHE_IO_FAIL;
+					}
 
 					psatData->nExc = matvar->dims[0];
-					matdata = (double*)matvar->data;
+					matdata = (double *)matvar->data;
 					if (psatData->nExc > 0) {
 						psatData->excs = new Exc[psatData->nExc];
 						for (int row = 0; row < psatData->nExc; row++) {
@@ -401,8 +495,7 @@ namespace che {
 								psatData->excs[row].excData.exc1.Tr = NEXT_C;
 								psatData->excs[row].excData.exc1.Ae = NEXT_C;
 								psatData->excs[row].excData.exc1.Be = NEXT_C;
-							}
-							else if (psatData->excs[row].excType == 2) {
+							} else if (psatData->excs[row].excType == 2) {
 								psatData->excs[row].excData.exc2.vMax = NEXT_C;
 								psatData->excs[row].excData.exc2.vMin = NEXT_C;
 								psatData->excs[row].excData.exc2.Ka = NEXT_C;
@@ -414,8 +507,7 @@ namespace che {
 								psatData->excs[row].excData.exc2.Tr = NEXT_C;
 								psatData->excs[row].excData.exc2.Ae = NEXT_C;
 								psatData->excs[row].excData.exc2.Be = NEXT_C;
-							}
-							else if (psatData->excs[row].excType == 3) {
+							} else if (psatData->excs[row].excType == 3) {
 								psatData->excs[row].excData.exc3.vMax = NEXT_C;
 								psatData->excs[row].excData.exc3.vMin = NEXT_C;
 								psatData->excs[row].excData.exc3.mu0 = NEXT_C;
@@ -425,9 +517,9 @@ namespace che {
 								psatData->excs[row].excData.exc3.V0 = NEXT_C;
 								psatData->excs[row].excData.exc3.Te = NEXT_C;
 								psatData->excs[row].excData.exc3.Tr = NEXT_C;
-							}
-							else {
-								cerr << "Unknown Tg type." << endl; return CHE_IO_FAIL;
+							} else {
+								cerr << "Unknown Tg type." << endl;
+								return CHE_IO_FAIL;
 							}
 							psatData->excs[row].status = (unsigned char)NEXT_C;
 						}
@@ -439,6 +531,6 @@ namespace che {
 
 				return CHE_IO_SUCCESS;
 			}
-		}
-	}
-}
+		} // namespace chedata
+	} // namespace io
+} // namespace che

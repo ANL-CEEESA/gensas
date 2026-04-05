@@ -4,31 +4,31 @@
 // Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
 // By: Argonne National Laboratory
 // OPEN SOURCE LICENSE
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-// 
-// 
+//
+//
 // ******************************************************************************************************
 // DISCLAIMER
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
-// 
+//
 #ifndef _Che_CheDataFormat_H_
 #define _Che_CheDataFormat_H_
 
-#define C_IDX(x) ((x)-1)
-#define M_IDX(x) ((x)+1)
+#define C_IDX(x) ((x) - 1)
+#define M_IDX(x) ((x) + 1)
 
 #include <string>
 #include "util/SafeArmadillo.h"
@@ -37,8 +37,8 @@
 using namespace std;
 using namespace arma;
 
-//This data format follows PSAT (Matlab toolbox) data format
-//And defined as the standard data format for Che.
+// This data format follows PSAT (Matlab toolbox) data format
+// And defined as the standard data format for Che.
 
 namespace che {
 	namespace io {
@@ -64,13 +64,15 @@ namespace che {
 				}
 
 				void regNewId(bool reg = true) {
-					if (reg) id = counter++;
+					if (reg)
+						id = counter++;
 				}
+
 			private:
 				int id;
 			};
 
-			class Bus :public CheComponent {
+			class Bus : public CheComponent {
 			public:
 				int busNumber;
 				double baseV;
@@ -82,7 +84,7 @@ namespace che {
 
 				Bus() {}
 
-				Bus(const Bus& bus, bool regNew = false) :CheComponent(bus, regNew) {
+				Bus(const Bus &bus, bool regNew = false) : CheComponent(bus, regNew) {
 					this->busNumber = bus.busNumber;
 					this->baseV = bus.baseV;
 					this->vMag = bus.vMag;
@@ -93,7 +95,7 @@ namespace che {
 				}
 			};
 
-			class SW :public CheComponent {
+			class SW : public CheComponent {
 			public:
 				int busNumber;
 				double baseS;
@@ -111,7 +113,7 @@ namespace che {
 
 				SW() {}
 
-				SW(const SW &sw, bool regNew = false) :CheComponent(sw, regNew) {
+				SW(const SW &sw, bool regNew = false) : CheComponent(sw, regNew) {
 					this->busNumber = sw.busNumber;
 					this->baseS = sw.baseS;
 					this->baseV = sw.baseV;
@@ -128,7 +130,7 @@ namespace che {
 				}
 			};
 
-			class PV :public CheComponent {
+			class PV : public CheComponent {
 			public:
 				int busNumber;
 				double baseS;
@@ -144,7 +146,7 @@ namespace che {
 
 				PV() {}
 
-				PV(const PV &pv, bool regNew = false) :CheComponent(pv, regNew) {
+				PV(const PV &pv, bool regNew = false) : CheComponent(pv, regNew) {
 					this->busNumber = pv.busNumber;
 					this->baseS = pv.baseS;
 					this->baseV = pv.baseV;
@@ -159,7 +161,7 @@ namespace che {
 				}
 			};
 
-			class PQ :public CheComponent {
+			class PQ : public CheComponent {
 			public:
 				int busNumber;
 				double baseS;
@@ -173,7 +175,7 @@ namespace che {
 
 				PQ() {}
 
-				PQ(const PQ &pq, bool regNew = false) :CheComponent(pq, regNew) {
+				PQ(const PQ &pq, bool regNew = false) : CheComponent(pq, regNew) {
 					this->busNumber = pq.busNumber;
 					this->baseS = pq.baseS;
 					this->baseV = pq.baseV;
@@ -186,7 +188,7 @@ namespace che {
 				}
 			};
 
-			class Shunt :public CheComponent {
+			class Shunt : public CheComponent {
 			public:
 				int busNumber;
 				double baseS;
@@ -198,7 +200,7 @@ namespace che {
 
 				Shunt() {}
 
-				Shunt(const Shunt &shunt, bool regNew = false) :CheComponent(shunt, regNew) {
+				Shunt(const Shunt &shunt, bool regNew = false) : CheComponent(shunt, regNew) {
 					this->busNumber = shunt.busNumber;
 					this->baseS = shunt.baseS;
 					this->baseV = shunt.baseV;
@@ -209,7 +211,7 @@ namespace che {
 				}
 			};
 
-			class Line :public CheComponent {
+			class Line : public CheComponent {
 			public:
 				int fromBus;
 				int toBus;
@@ -230,7 +232,7 @@ namespace che {
 
 				Line() {}
 
-				Line(const Line &line, bool regNew = false) :CheComponent(line, regNew) {
+				Line(const Line &line, bool regNew = false) : CheComponent(line, regNew) {
 					this->fromBus = line.fromBus;
 					this->toBus = line.toBus;
 					this->baseS = line.baseS;
@@ -250,7 +252,7 @@ namespace che {
 				}
 			};
 
-			class Pl :public CheComponent {
+			class Pl : public CheComponent {
 			public:
 				int busNumber;
 				double baseS;
@@ -267,7 +269,7 @@ namespace che {
 
 				Pl() {}
 
-				Pl(const Pl &pl, bool regNew = false) :CheComponent(pl, regNew) {
+				Pl(const Pl &pl, bool regNew = false) : CheComponent(pl, regNew) {
 					this->busNumber = pl.busNumber;
 					this->baseS = pl.baseS;
 					this->baseV = pl.baseV;
@@ -283,7 +285,7 @@ namespace che {
 				}
 			};
 
-			class Syn :public CheComponent {
+			class Syn : public CheComponent {
 			public:
 				int busNumber;
 				double baseS;
@@ -316,7 +318,7 @@ namespace che {
 
 				Syn() {}
 
-				Syn(const Syn &syn, bool regNew = false) :CheComponent(syn, regNew) {
+				Syn(const Syn &syn, bool regNew = false) : CheComponent(syn, regNew) {
 					this->busNumber = syn.busNumber;
 					this->baseS = syn.baseS;
 					this->baseV = syn.baseV;
@@ -348,7 +350,7 @@ namespace che {
 				}
 			};
 
-			class Ind :public CheComponent {
+			class Ind : public CheComponent {
 			public:
 				int busNumber;
 				double baseS;
@@ -373,7 +375,7 @@ namespace che {
 
 				Ind() {}
 
-				Ind(const Ind &ind, bool regNew = false) :CheComponent(ind, regNew) {
+				Ind(const Ind &ind, bool regNew = false) : CheComponent(ind, regNew) {
 					this->busNumber = ind.busNumber;
 					this->baseS = ind.baseS;
 					this->baseV = ind.baseV;
@@ -397,7 +399,7 @@ namespace che {
 				}
 			};
 
-			class Tg :public CheComponent {
+			class Tg : public CheComponent {
 			public:
 				struct Tg1Data {
 					double wref0;
@@ -430,7 +432,7 @@ namespace che {
 
 				Tg() {}
 
-				Tg(const Tg &tg, bool regNew = false) :CheComponent(tg, regNew) {
+				Tg(const Tg &tg, bool regNew = false) : CheComponent(tg, regNew) {
 					this->synNumber = tg.synNumber;
 					this->tgType = tg.tgType;
 					if (tg.tgType == 1) {
@@ -443,8 +445,7 @@ namespace che {
 						this->tgData.tg1.T3 = tg.tgData.tg1.T3;
 						this->tgData.tg1.T4 = tg.tgData.tg1.T4;
 						this->tgData.tg1.T5 = tg.tgData.tg1.T5;
-					}
-					else if (tg.tgType == 2) {
+					} else if (tg.tgType == 2) {
 						this->tgData.tg2.wref0 = tg.tgData.tg2.wref0;
 						this->tgData.tg2.R = tg.tgData.tg2.R;
 						this->tgData.tg2.Tmax = tg.tgData.tg2.Tmax;
@@ -456,7 +457,7 @@ namespace che {
 				}
 			};
 
-			class Exc :public CheComponent {
+			class Exc : public CheComponent {
 			public:
 				struct Exc1Data {
 					double vMax;
@@ -506,7 +507,7 @@ namespace che {
 
 				Exc() {}
 
-				Exc(const Exc &exc, bool regNew = false) :CheComponent(exc, regNew) {
+				Exc(const Exc &exc, bool regNew = false) : CheComponent(exc, regNew) {
 					this->synNumber = exc.synNumber;
 					this->excType = exc.excType;
 					this->status = exc.status;
@@ -522,8 +523,7 @@ namespace che {
 						this->excData.exc1.Tr = exc.excData.exc1.Tr;
 						this->excData.exc1.Ae = exc.excData.exc1.Ae;
 						this->excData.exc1.Be = exc.excData.exc1.Be;
-					}
-					else if (exc.excType == 2) {
+					} else if (exc.excType == 2) {
 						this->excData.exc2.vMax = exc.excData.exc2.vMax;
 						this->excData.exc2.vMin = exc.excData.exc2.vMin;
 						this->excData.exc2.Ka = exc.excData.exc2.Ka;
@@ -534,8 +534,7 @@ namespace che {
 						this->excData.exc2.Tr = exc.excData.exc2.Tr;
 						this->excData.exc2.Ae = exc.excData.exc2.Ae;
 						this->excData.exc2.Be = exc.excData.exc2.Be;
-					}
-					else if (exc.excType == 3) {
+					} else if (exc.excType == 3) {
 						this->excData.exc3.vMax = exc.excData.exc3.vMax;
 						this->excData.exc3.vMin = exc.excData.exc3.vMin;
 						this->excData.exc3.mu0 = exc.excData.exc3.mu0;
@@ -622,7 +621,7 @@ namespace che {
 					copyMembers(psat, regNew);
 				}
 
-				PsatDataSet& operator=(const PsatDataSet &psat) {
+				PsatDataSet &operator=(const PsatDataSet &psat) {
 					nBus = -1;
 					nSw = -1;
 					nPv = -1;
@@ -643,7 +642,7 @@ namespace che {
 					return *this;
 				}
 
-				void renumberBuses(map<int, int>& oldToNew) {
+				void renumberBuses(map<int, int> &oldToNew) {
 					map<int, int> busMap;
 					for (int i = 0; i < nBus; i++) {
 						busMap.insert(pair<int, int>(buses[i].busNumber, i + 1));
@@ -675,9 +674,8 @@ namespace che {
 					}
 					if (oldToNew.empty()) {
 						this->oldToNew = busMap;
-					}
-					else {
-						map<int, int>tempMap;
+					} else {
+						map<int, int> tempMap;
 						map<int, int>::iterator itr;
 						for (itr = oldToNew.begin(); itr != oldToNew.end(); ++itr) {
 							tempMap.insert(pair<int, int>(itr->first, busMap[itr->second]));
@@ -722,17 +720,21 @@ namespace che {
 					isFormatted = false;
 				}
 
-#define GET_FIELD_VEC(type,data,field,size) type get_##data##_##field##_vec() const{\
-type x(size>0?size:0);\
-for(int i=0;i<size;i++)x(i)=data[i].field;\
-return x;\
-}
+#define GET_FIELD_VEC(type, data, field, size) \
+	type get_##data##_##field##_vec() const {  \
+		type x(size > 0 ? size : 0);           \
+		for (int i = 0; i < size; i++)         \
+			x(i) = data[i].field;              \
+		return x;                              \
+	}
 
-#define GET_UNION_SUBFIELD_VEC(type,data,un,field,subf,size) type get_##data##_##un##_##field##_##subf##_vec() const{\
-type x(size>0?size:0);\
-for(int i=0;i<size;i++)x(i)=data[i].un.field.subf;\
-return x;\
-}
+#define GET_UNION_SUBFIELD_VEC(type, data, un, field, subf, size) \
+	type get_##data##_##un##_##field##_##subf##_vec() const {     \
+		type x(size > 0 ? size : 0);                              \
+		for (int i = 0; i < size; i++)                            \
+			x(i) = data[i].un.field.subf;                         \
+		return x;                                                 \
+	}
 				// Bus
 				GET_FIELD_VEC(uvec, buses, busNumber, nBus);
 				GET_FIELD_VEC(vec, buses, baseV, nBus);
@@ -754,7 +756,7 @@ return x;\
 				GET_FIELD_VEC(vec, sws, lossParticipation, nSw);
 				GET_FIELD_VEC(uvec, sws, isRefBus, nSw);
 				GET_FIELD_VEC(uvec, sws, status, nSw);
-				//PV
+				// PV
 				GET_FIELD_VEC(uvec, pvs, busNumber, nPv);
 				GET_FIELD_VEC(vec, pvs, baseS, nPv);
 				GET_FIELD_VEC(vec, pvs, baseV, nPv);
@@ -766,7 +768,7 @@ return x;\
 				GET_FIELD_VEC(vec, pvs, vMin, nPv);
 				GET_FIELD_VEC(vec, pvs, lossParticipation, nPv);
 				GET_FIELD_VEC(uvec, pvs, status, nPv);
-				//PQ
+				// PQ
 				GET_FIELD_VEC(uvec, pqs, busNumber, nPq);
 				GET_FIELD_VEC(vec, pqs, baseS, nPq);
 				GET_FIELD_VEC(vec, pqs, baseV, nPq);
@@ -776,7 +778,7 @@ return x;\
 				GET_FIELD_VEC(vec, pqs, vMin, nPq);
 				GET_FIELD_VEC(uvec, pqs, allowConversion, nPq);
 				GET_FIELD_VEC(uvec, pqs, status, nPq);
-				//Shunt
+				// Shunt
 				GET_FIELD_VEC(uvec, shunts, busNumber, nShunt);
 				GET_FIELD_VEC(vec, shunts, baseS, nShunt);
 				GET_FIELD_VEC(vec, shunts, baseV, nShunt);
@@ -784,7 +786,7 @@ return x;\
 				GET_FIELD_VEC(vec, shunts, g, nShunt);
 				GET_FIELD_VEC(vec, shunts, b, nShunt);
 				GET_FIELD_VEC(uvec, shunts, status, nShunt);
-				//Line
+				// Line
 				GET_FIELD_VEC(uvec, lines, fromBus, nLine);
 				GET_FIELD_VEC(uvec, lines, toBus, nLine);
 				GET_FIELD_VEC(vec, lines, baseS, nLine);
@@ -801,7 +803,7 @@ return x;\
 				GET_FIELD_VEC(vec, lines, pMax, nLine);
 				GET_FIELD_VEC(vec, lines, sMax, nLine);
 				GET_FIELD_VEC(uvec, lines, status, nLine);
-				//Pl
+				// Pl
 				GET_FIELD_VEC(uvec, pls, busNumber, nPl);
 				GET_FIELD_VEC(vec, pls, baseS, nPl);
 				GET_FIELD_VEC(vec, pls, baseV, nPl);
@@ -814,7 +816,7 @@ return x;\
 				GET_FIELD_VEC(vec, pls, Q, nPl);
 				GET_FIELD_VEC(uvec, pls, initAfterPF, nPl);
 				GET_FIELD_VEC(uvec, pls, status, nPl);
-				//Syn
+				// Syn
 				GET_FIELD_VEC(uvec, syns, busNumber, nSyn);
 				GET_FIELD_VEC(vec, syns, baseS, nSyn);
 				GET_FIELD_VEC(vec, syns, baseV, nSyn);
@@ -843,7 +845,7 @@ return x;\
 				GET_FIELD_VEC(vec, syns, sat2, nSyn);
 				GET_FIELD_VEC(uvec, syns, nCOI, nSyn);
 				GET_FIELD_VEC(uvec, syns, status, nSyn);
-				//Ind
+				// Ind
 				GET_FIELD_VEC(uvec, inds, busNumber, nInd);
 				GET_FIELD_VEC(vec, inds, baseS, nInd);
 				GET_FIELD_VEC(vec, inds, baseV, nInd);
@@ -864,11 +866,11 @@ return x;\
 				GET_FIELD_VEC(vec, inds, tup, nInd);
 				GET_FIELD_VEC(uvec, inds, allowBrake, nInd);
 				GET_FIELD_VEC(uvec, inds, status, nInd);
-				//Tg
+				// Tg
 				GET_FIELD_VEC(uvec, tgs, synNumber, nTg);
 				GET_FIELD_VEC(uvec, tgs, tgType, nTg);
 				GET_FIELD_VEC(uvec, tgs, status, nTg);
-				//Tg - Tg1
+				// Tg - Tg1
 				GET_UNION_SUBFIELD_VEC(vec, tgs, tgData, tg1, wref0, nTg);
 				GET_UNION_SUBFIELD_VEC(vec, tgs, tgData, tg1, R, nTg);
 				GET_UNION_SUBFIELD_VEC(vec, tgs, tgData, tg1, Tmax, nTg);
@@ -885,7 +887,7 @@ return x;\
 				GET_UNION_SUBFIELD_VEC(vec, tgs, tgData, tg2, Tmin, nTg);
 				GET_UNION_SUBFIELD_VEC(vec, tgs, tgData, tg2, T2, nTg);
 				GET_UNION_SUBFIELD_VEC(vec, tgs, tgData, tg2, T1, nTg);
-				//Exc
+				// Exc
 				GET_FIELD_VEC(uvec, excs, synNumber, nExc);
 				GET_FIELD_VEC(uvec, excs, excType, nExc);
 				GET_FIELD_VEC(uvec, excs, status, nExc);
@@ -960,62 +962,73 @@ return x;\
 					}
 				}
 
-				void copyMembers(const PsatDataSet& psat, bool regNew) {
+				void copyMembers(const PsatDataSet &psat, bool regNew) {
 					reset();
 					this->nBus = psat.nBus;
 					if (this->nBus > 0) {
 						this->buses = new Bus[this->nBus];
-						for (int i = 0; i < this->nBus; i++) this->buses[i] = Bus(psat.buses[i], regNew);
+						for (int i = 0; i < this->nBus; i++)
+							this->buses[i] = Bus(psat.buses[i], regNew);
 					}
 					this->nSw = psat.nSw;
 					if (this->nSw > 0) {
 						this->sws = new SW[this->nSw];
-						for (int i = 0; i < this->nSw; i++) this->sws[i] = SW(psat.sws[i], regNew);
+						for (int i = 0; i < this->nSw; i++)
+							this->sws[i] = SW(psat.sws[i], regNew);
 					}
 					this->nPv = psat.nPv;
 					if (this->nPv > 0) {
 						this->pvs = new PV[this->nPv];
-						for (int i = 0; i < this->nPv; i++) this->pvs[i] = PV(psat.pvs[i], regNew);
+						for (int i = 0; i < this->nPv; i++)
+							this->pvs[i] = PV(psat.pvs[i], regNew);
 					}
 					this->nPq = psat.nPq;
 					if (this->nPq > 0) {
 						this->pqs = new PQ[this->nPq];
-						for (int i = 0; i < this->nPq; i++) this->pqs[i] = PQ(psat.pqs[i], regNew);
+						for (int i = 0; i < this->nPq; i++)
+							this->pqs[i] = PQ(psat.pqs[i], regNew);
 					}
 					this->nShunt = psat.nShunt;
 					if (this->nShunt > 0) {
 						this->shunts = new Shunt[this->nShunt];
-						for (int i = 0; i < this->nShunt; i++) this->shunts[i] = Shunt(psat.shunts[i], regNew);
+						for (int i = 0; i < this->nShunt; i++)
+							this->shunts[i] = Shunt(psat.shunts[i], regNew);
 					}
 					this->nLine = psat.nLine;
 					if (this->nLine > 0) {
 						this->lines = new Line[this->nLine];
-						for (int i = 0; i < this->nLine; i++) this->lines[i] = Line(psat.lines[i], regNew);
+						for (int i = 0; i < this->nLine; i++)
+							this->lines[i] = Line(psat.lines[i], regNew);
 					}
 					this->nPl = psat.nPl;
 					if (this->nPl > 0) {
 						this->pls = new Pl[this->nPl];
-						for (int i = 0; i < this->nPl; i++) this->pls[i] = Pl(psat.pls[i], regNew);
+						for (int i = 0; i < this->nPl; i++)
+							this->pls[i] = Pl(psat.pls[i], regNew);
 					}
 					this->nSyn = psat.nSyn;
 					if (this->nSyn > 0) {
 						this->syns = new Syn[this->nSyn];
-						for (int i = 0; i < this->nSyn; i++) this->syns[i] = Syn(psat.syns[i], regNew);
+						for (int i = 0; i < this->nSyn; i++)
+							this->syns[i] = Syn(psat.syns[i], regNew);
 					}
 					this->nInd = psat.nInd;
 					if (this->nInd > 0) {
 						this->inds = new Ind[this->nInd];
-						for (int i = 0; i < this->nInd; i++) this->inds[i] = Ind(psat.inds[i], regNew);
+						for (int i = 0; i < this->nInd; i++)
+							this->inds[i] = Ind(psat.inds[i], regNew);
 					}
 					this->nTg = psat.nTg;
 					if (this->nTg > 0) {
 						this->tgs = new Tg[this->nTg];
-						for (int i = 0; i < this->nTg; i++) this->tgs[i] = Tg(psat.tgs[i], regNew);
+						for (int i = 0; i < this->nTg; i++)
+							this->tgs[i] = Tg(psat.tgs[i], regNew);
 					}
 					this->nExc = psat.nExc;
 					if (this->nExc > 0) {
 						this->excs = new Exc[this->nExc];
-						for (int i = 0; i < this->nExc; i++) this->excs[i] = Exc(psat.excs[i], regNew);
+						for (int i = 0; i < this->nExc; i++)
+							this->excs[i] = Exc(psat.excs[i], regNew);
 					}
 
 					this->newToOld = psat.newToOld;
@@ -1023,8 +1036,8 @@ return x;\
 					this->isFormatted = psat.isFormatted;
 				}
 			};
-		}
-	}
-}
+		} // namespace chedata
+	} // namespace io
+} // namespace che
 
 #endif

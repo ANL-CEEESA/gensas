@@ -4,26 +4,26 @@
 // Software Name: Generic Semi-Analytical Simulation Tool (GenSAS)
 // By: Argonne National Laboratory
 // OPEN SOURCE LICENSE
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-// 
-// 
+//
+//
 // ******************************************************************************************************
 // DISCLAIMER
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ***************************************************************************************************
-// 
+//
 #include "util/AbstractCheCalculator.h"
 #include "util/CheCompUtil.h"
 
@@ -51,11 +51,10 @@ namespace che {
 				for (int j = -n + 1; j < n; j++) {
 					toep.diag(j).fill(ct(i, n - 1 - j));
 				}
-				//toep.print("toep:");
+				// toep.print("toep:");
 				try {
 					x.row(i) = solve(toep, y.row(i).t(), solve_opts::no_approx).t();
-				}
-				catch (const std::runtime_error& e) {
+				} catch (const std::runtime_error &e) {
 					x.row(i).fill(datum::nan);
 				}
 			}
@@ -111,15 +110,15 @@ namespace che {
 			this->diffTolMax = diffTolMax;
 		}
 
-		CheSolution::CheSolution(int nState, int nLvl) :solution(nState, nLvl, fill::zeros) {
+		CheSolution::CheSolution(int nState, int nLvl) : solution(nState, nLvl, fill::zeros) {
 			this->type = CHESOL_NONE;
 			this->nState = nState;
 			this->nLvl = nLvl;
 		}
 
-		CheSolution::~CheSolution(){}
+		CheSolution::~CheSolution() {}
 
-		CheSolutionPowerSeries::CheSolutionPowerSeries(int nState, int nLvl) :CheSolution(nState, nLvl) {
+		CheSolutionPowerSeries::CheSolutionPowerSeries(int nState, int nLvl) : CheSolution(nState, nLvl) {
 			type = CHESOL_PS;
 		}
 
@@ -129,7 +128,7 @@ namespace che {
 
 		CheSolutionPowerSeries::~CheSolutionPowerSeries() {}
 
-		CheSolutionPade::CheSolutionPade(int nState, int num, int den, PadeSolverType sol) :CheSolution(nState, num + den) {
+		CheSolutionPade::CheSolutionPade(int nState, int num, int den, PadeSolverType sol) : CheSolution(nState, num + den) {
 			this->num = num;
 			this->den = den;
 			ready = false;
@@ -137,27 +136,25 @@ namespace che {
 			this->type = CHESOL_PADE;
 		}
 
-		CheSolutionPade::CheSolutionPade(int nState, int nLvl, PadeSolverType sol) 
-			:CheSolutionPade(nState, nLvl - nLvl / 2, nLvl / 2,  sol) {}
+		CheSolutionPade::CheSolutionPade(int nState, int nLvl, PadeSolverType sol)
+			: CheSolutionPade(nState, nLvl - nLvl / 2, nLvl / 2, sol) {}
 
 		vec CheSolutionPade::getSolValue(double alpha) {
 			if (!ready) {
 				if (solver == PADE_LEVINSON) {
 					ready = genPadeCoeffLevinson();
-				}
-				else {
+				} else {
 					ready = genPadeCoeffLU();
 				}
 			}
 			if (!ready) {
 				return getPowerSeriesValue(solution, alpha);
-			}
-			else {
+			} else {
 				vec sol = getPowerSeriesValue(numerator, alpha) / getPowerSeriesValue(join_rows(ones<mat>(denomenator.n_rows, 1), denomenator), alpha);
 				uvec nfrows = find_nonfinite(sol);
 				if (!nfrows.is_empty()) {
 					sol.rows(nfrows) = getPowerSeriesValue(solution.rows(nfrows), alpha);
-					numerator.rows(nfrows)=solution.submat(nfrows,regspace<uvec>(0,this->num-1));
+					numerator.rows(nfrows) = solution.submat(nfrows, regspace<uvec>(0, this->num - 1));
 					denomenator.rows(nfrows).fill(0.0);
 				}
 				return sol;
@@ -196,44 +193,42 @@ namespace che {
 
 			for (int i = 0; i < den; i++) {
 				this->numerator += augTc.cols(den - i - 1, num + den - i - 2).each_col() % this->denomenator.col(i);
-				//this->numerator.raw_print(cout, "num");
+				// this->numerator.raw_print(cout, "num");
 			}
 			return true;
 		}
 
 		CheSolutionPade::~CheSolutionPade() {}
 
-		CheSingleEmbedSystem::CheSingleEmbedSystem(const CheState& init, const chedata::PsatDataSet& baseSys, double startAlpha = 0)
-			:initState(init), baseSys(baseSys) {
+		CheSingleEmbedSystem::CheSingleEmbedSystem(const CheState &init, const chedata::PsatDataSet &baseSys, double startAlpha = 0)
+			: initState(init), baseSys(baseSys) {
 			this->startAlpha = startAlpha;
 			yMatrix = CheCompUtil::getCheYMatrix(baseSys);
 		}
 
-		CheSolution* CheSolutionFactory::makeInitCheSol(int type, int nState, int nLvl) {
-			CheSolution* pSol = NULL;
+		CheSolution *CheSolutionFactory::makeInitCheSol(int type, int nState, int nLvl) {
+			CheSolution *pSol = NULL;
 			if (type == CHESOL_PS) {
 				pSol = new CheSolutionPowerSeries(nState, nLvl);
-			}
-			else if (type == CHESOL_PADE) {
+			} else if (type == CHESOL_PADE) {
 				pSol = new CheSolutionPade(nState, nLvl, PADE_LEVINSON);
 			}
 			return pSol;
 		}
 
-		CheSolution* CheSolutionFactory::makeCopyCheSol(CheSolution* sol) {
+		CheSolution *CheSolutionFactory::makeCopyCheSol(CheSolution *sol) {
 			if (sol == NULL)
 				return NULL;
 			if (sol->type == CHESOL_PS) {
-				CheSolutionPowerSeries* pSol = new CheSolutionPowerSeries(sol->nState, sol->nLvl);
-				CheSolutionPowerSeries* pOri = dynamic_cast<CheSolutionPowerSeries*>(sol);
+				CheSolutionPowerSeries *pSol = new CheSolutionPowerSeries(sol->nState, sol->nLvl);
+				CheSolutionPowerSeries *pOri = dynamic_cast<CheSolutionPowerSeries *>(sol);
 				if (pOri != nullptr) {
 					pSol->solution = pOri->solution;
 				}
 				return pSol;
-			}
-			else if (sol->type == CHESOL_PADE) {
-				CheSolutionPade* pSol = new CheSolutionPade(sol->nState, sol->nLvl, PADE_LEVINSON);
-				CheSolutionPade* pOri = dynamic_cast<CheSolutionPade*>(sol);
+			} else if (sol->type == CHESOL_PADE) {
+				CheSolutionPade *pSol = new CheSolutionPade(sol->nState, sol->nLvl, PADE_LEVINSON);
+				CheSolutionPade *pOri = dynamic_cast<CheSolutionPade *>(sol);
 				if (pOri != nullptr) {
 					pSol->num = pOri->num;
 					pSol->den = pOri->num;
@@ -246,7 +241,7 @@ namespace che {
 			return NULL;
 		}
 
-		mat getDer(const mat& c) {
+		mat getDer(const mat &c) {
 			mat d(c.n_rows, c.n_cols, fill::zeros);
 			for (int i = 1; i < c.n_cols; i++) {
 				d.col(i - 1) = i * c.col(i);
@@ -254,20 +249,19 @@ namespace che {
 			return d;
 		}
 
-		CheSolution* CheSolutionFactory::makeDerivativeSol(CheSolution* sol) {
+		CheSolution *CheSolutionFactory::makeDerivativeSol(CheSolution *sol) {
 			if (sol == NULL)
 				return NULL;
 			if (sol->type == CHESOL_PS) {
-				CheSolutionPowerSeries* pSol = new CheSolutionPowerSeries(sol->nState, sol->nLvl);
-				CheSolutionPowerSeries* pOri = dynamic_cast<CheSolutionPowerSeries*>(sol);
-				if (pOri != nullptr) {					
+				CheSolutionPowerSeries *pSol = new CheSolutionPowerSeries(sol->nState, sol->nLvl);
+				CheSolutionPowerSeries *pOri = dynamic_cast<CheSolutionPowerSeries *>(sol);
+				if (pOri != nullptr) {
 					pSol->solution = getDer(pOri->solution);
 				}
 				return pSol;
-			}
-			else if (sol->type == CHESOL_PADE) {
-				CheSolutionPade* pSol = new CheSolutionPade(sol->nState, sol->nLvl, PADE_LEVINSON);
-				CheSolutionPade* pOri = dynamic_cast<CheSolutionPade*>(sol);
+			} else if (sol->type == CHESOL_PADE) {
+				CheSolutionPade *pSol = new CheSolutionPade(sol->nState, sol->nLvl, PADE_LEVINSON);
+				CheSolutionPade *pOri = dynamic_cast<CheSolutionPade *>(sol);
 				if (pOri != nullptr) {
 					pSol->solution = getDer(pOri->solution);
 					pSol->num = pOri->num;
@@ -280,10 +274,10 @@ namespace che {
 		}
 
 		AbstractCheCalculator::AbstractCheCalculator(
-			const chedata::PsatDataSet &sys, const CheCompOptions& compOpt)
-			: baseSys(regulateIsland(sys)),compOpt(compOpt) {
-			this->cheList = list<CheSingleEmbedSystem*>();
-			this->solList = list<CheSolution*>();
+			const chedata::PsatDataSet &sys, const CheCompOptions &compOpt)
+			: baseSys(regulateIsland(sys)), compOpt(compOpt) {
+			this->cheList = list<CheSingleEmbedSystem *>();
+			this->solList = list<CheSolution *>();
 			this->reachesMaxAlpha = false;
 		}
 
@@ -292,8 +286,7 @@ namespace che {
 				chedata::PsatDataSet newSys(sys);
 				newSys.renumberBuses();
 				return newSys;
-			}
-			else {
+			} else {
 				return sys;
 			}
 		}
@@ -302,9 +295,9 @@ namespace che {
 			double alpha = 0;
 			CheSingleEmbedSystem *pinit = getInitSystem(baseSys);
 			cheList.push_back(pinit);
-			CheSingleEmbedSystem* currSys;
+			CheSingleEmbedSystem *currSys;
 			while ((currSys = cheList.back()) != NULL) {
-				CheSolution* cheSol = getCheSolution();
+				CheSolution *cheSol = getCheSolution();
 				solList.push_back(cheSol);
 				if (cheSol == NULL) {
 					break;
@@ -317,19 +310,21 @@ namespace che {
 			return 0;
 		}
 
-		CheState AbstractCheCalculator::exportResult(){
+		CheState AbstractCheCalculator::exportResult() {
 			return cheList.back()->initState;
 		}
 
 		AbstractCheCalculator::~AbstractCheCalculator() {
-			for (auto&&che : cheList) {
-				if (che != NULL) delete che;
+			for (auto &&che : cheList) {
+				if (che != NULL)
+					delete che;
 			}
 			cheList.clear();
-			for (auto&&sol : solList) {
-				if (sol != NULL) delete sol;
+			for (auto &&sol : solList) {
+				if (sol != NULL)
+					delete sol;
 			}
 			solList.clear();
 		}
-	}
-}
+	} // namespace core
+} // namespace che
