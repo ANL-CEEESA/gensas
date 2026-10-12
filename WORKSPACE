@@ -103,11 +103,12 @@ http_archive(
 http_archive(
     name = "libaec",
     build_file_content = _ALL_CONTENT ,
-    strip_prefix = "libaec-v1.0.6",
+    # GitHub release asset (stable bytes); gitlab.dkrz.de rate-limits CI runners (HTTP 429).
+    strip_prefix = "libaec-1.0.6",
     urls = [
-        "https://gitlab.dkrz.de/k202009/libaec/-/archive/v1.0.6/libaec-v1.0.6.tar.gz"
+        "https://github.com/MathisRosenhauer/libaec/releases/download/v1.0.6/libaec-1.0.6.tar.gz",
     ],
-    sha256 = "2675D26B24A081CDAAA48E0D085632E568E3F85F843F62B91FC51E1B3F5FE93F",
+    sha256 = "032961877231113bb094ef224085e6d66fd670f85a3e17f53d0f131abf24f2fd",
 )
 
 #libmatio
