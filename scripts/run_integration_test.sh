@@ -21,6 +21,18 @@ OUTPUT_MAT="${REPO_DIR}/${OUTPUT_NAME}"
 cd "${REPO_DIR}"
 rm -f "${OUTPUT_MAT}"
 
+# Windows (MSYS2 bash): the binary is app.exe, and the native executable needs a
+# Windows-style path (C:/...) rather than an MSYS-style one (/c/...).
+if command -v cygpath >/dev/null 2>&1; then
+  INPUT_DIR="$(cygpath -m "${REPO_DIR}")"
+else
+  INPUT_DIR="${REPO_DIR}"
+fi
+APP_BIN="${REPO_DIR}/bazel-bin/app/app"
+if [ -f "${APP_BIN}.exe" ]; then
+  APP_BIN="${APP_BIN}.exe"
+fi
+
 echo "=== GenSAS power flow integration test ==="
 echo "Input : resources/psat_mat/d_70k_070.mat"
 echo "Output: ${OUTPUT_MAT}"
@@ -35,9 +47,9 @@ echo ""
 # .mat file can be written to an arbitrary filesystem path.
 # Pass a relative output name; the app prepends CWD, yielding REPO_DIR/OUTPUT_NAME.
 set +e
-APP_OUTPUT=$("${REPO_DIR}/bazel-bin/app/app" \
+APP_OUTPUT=$("${APP_BIN}" \
   -p \
-  -f "${REPO_DIR}/resources/psat_mat/d_70k_070.mat" \
+  -f "${INPUT_DIR}/resources/psat_mat/d_70k_070.mat" \
   -s 0.5 -l 28 -d 1e-5 \
   -o "${OUTPUT_NAME}" \
   2>&1)

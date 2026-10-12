@@ -37,3 +37,46 @@ jobs:
           key: bazel_macos_integration-${{ hashFiles('WORKSPACE', 'BUILD.bazel') }}
       - name: Run integration test
         run: bash scripts/run_integration_test.sh
+
+  # Windows (MSYS2 / MinGW-w64), see doc/Installation.md.
+  # Verified locally, but not yet on GitHub's runners: continue-on-error keeps a
+  # CI-specific problem from failing the workflow.  Remove that line to make
+  # this a required check once it has been green.
+  Integration-Test-Windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    continue-on-error: true
+    defaults:
+      run:
+        shell: msys2 {0}
+    env:
+      MSYS2_ARG_CONV_EXCL: "*"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          # Use the MSYS2 preinstalled on the runner (C:\msys64), where .bazelrc
+          # expects it, and keep the Windows PATH so that bazel is found.
+          release: false
+          path-type: inherit
+          install: >-
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-make
+      - name: Set up Bazelisk
+        uses: bazelbuild/setup-bazelisk@v3
+      - name: Mount bazel disk cache
+        uses: actions/cache@v3
+        with:
+          path: C:/bazel-disk-cache
+          key: bazel_windows_integration-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelrc') }}
+          restore-keys: bazel_windows_integration-
+      - name: Use the disk cache
+        run: echo "build --disk_cache=C:/bazel-disk-cache" > .bazelrc.local
+      - name: Run integration test
+        run: bash scripts/run_integration_test.sh

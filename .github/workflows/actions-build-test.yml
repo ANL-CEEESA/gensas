@@ -51,3 +51,44 @@ jobs:
       - run: bazel build //...
       - run: bazel test //...
       - run: echo "This job's status is ${{ job.status }}."
+
+  # Windows (MSYS2 / MinGW-w64), see doc/Installation.md.  Not yet proven on
+  # GitHub's runners, hence continue-on-error; remove it to make this required.
+  Build-Test-Windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    continue-on-error: true
+    defaults:
+      run:
+        shell: msys2 {0}
+    env:
+      MSYS2_ARG_CONV_EXCL: "*"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          release: false
+          path-type: inherit
+          install: >-
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-make
+      - name: Set up Bazelisk
+        uses: bazelbuild/setup-bazelisk@v3
+      - name: Mount bazel disk cache
+        uses: actions/cache@v3
+        with:
+          path: C:/bazel-disk-cache
+          key: bazel_windows-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelrc') }}
+          restore-keys: bazel_windows-
+      - name: Use the disk cache
+        run: echo "build --disk_cache=C:/bazel-disk-cache" > .bazelrc.local
+      # //... skips the targets that are Linux/macOS-only (autotools builds).
+      - run: bazel build //...
+      - run: bazel test //...
+

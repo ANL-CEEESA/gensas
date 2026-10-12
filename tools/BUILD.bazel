@@ -1,1 +1,13 @@
 # Bazel package for build tools and configuration helpers.
+
+# Execution platform that selects Bazel's MinGW-w64 GCC toolchain on Windows.
+# Used only by the `build:windows` section of /.bazelrc (no effect on Linux or
+# macOS builds).  See doc/Installation.md, "Windows".
+platform(
+    name = "x64_windows-mingw-gcc",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:windows",
+        "@bazel_tools//tools/cpp:mingw",
+    ],
+)

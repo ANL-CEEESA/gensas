@@ -13,6 +13,12 @@ loaded into BUILD.bazel.
 def _find_gfortran_linkopts(repository_ctx):
     """Return a list of linker flags that resolve libgfortran on any platform."""
 
+    # Windows: OpenBLAS is built with C_LAPACK (no Fortran), so BUILD.bazel does
+    # not use GFORTRAN_LINKOPTS there.  Return early: gfortran may not be
+    # installed, and the POSIX `test` probe below does not exist on Windows.
+    if repository_ctx.os.name.lower().startswith("windows"):
+        return []
+
     # 1. Ask gfortran where its own library lives.
     result = repository_ctx.execute(
         ["gfortran", "--print-file-name=libgfortran.a"],

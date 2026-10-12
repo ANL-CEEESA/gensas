@@ -32,6 +32,37 @@ config_setting(
     ],
 )
 
+config_setting(
+    name = "windows",
+    constraint_values = ["@platforms//os:windows"],
+)
+
+# ---------------------------------------------------------------------------
+# Windows support (MSYS2 / MinGW-w64 toolchain, see doc/Installation.md)
+# ---------------------------------------------------------------------------
+# The Linux/macOS targets below are unchanged.  Where a dependency needs a
+# different build recipe on Windows (autotools / make are not usable there), a
+# separate "*_cmake" target is provided and the consumers pick it with select().
+#
+# NOT_WINDOWS marks a target as incompatible with Windows, so that
+# `bazel build //...` simply skips it there instead of failing.
+NOT_WINDOWS = select({
+    "//:windows": ["@platforms//:incompatible"],
+    "//conditions:default": [],
+})
+
+# Bazel's MinGW toolchain passes CMake extension-less compiler paths
+# (".../mingw64/bin/gcc"), which CMake rejects on Windows ("is not a full path
+# to an existing compiler tool").  rules_foreign_cc lets `env` CC/CXX override
+# the toolchain's compilers; plain names are resolved through PATH.
+WINDOWS_CMAKE_ENV = select({
+    "//:windows": {
+        "CC": "gcc",
+        "CXX": "g++",
+    },
+    "//conditions:default": {},
+})
+
 # ---------------------------------------------------------------------------
 # macOS Accelerate framework
 # ---------------------------------------------------------------------------
@@ -57,6 +88,8 @@ cmake(
     },
     lib_source = "@pcre//:all_srcs",
     out_static_libs = ["libpcre.a"],
+    # Not used by the application; not ported to Windows.
+    target_compatible_with = NOT_WINDOWS,
 )
 
 # ---------------------------------------------------------------------------
@@ -88,6 +121,38 @@ cc_library(
     target_compatible_with = ["@platforms//os:linux"],
 )
 
+# OpenBLAS on Windows: built with CMake (the `make` recipe above needs a POSIX
+# build environment and is Linux-only).
+#
+# C_LAPACK=ON builds LAPACK from the bundled C translation, so no Fortran
+# compiler (and no libgfortran at link time) is needed on Windows.
+# BUILD_TESTING=OFF avoids building the LAPACK test-suite (default ON).
+cmake(
+    name = "openblas_lib_cmake",
+    cache_entries = {
+        "BUILD_SHARED_LIBS": "OFF",
+        "BUILD_STATIC_LIBS": "ON",
+        "BUILD_TESTING": "OFF",
+        "C_LAPACK": "ON",
+        "NOFORTRAN": "1",
+    },
+    lib_source = "@openblas//:all_srcs",
+    out_static_libs = ["libopenblas.a"],
+    env = WINDOWS_CMAKE_ENV,
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
+# Bridge to a plain cc_library so that dependants see OpenBLAS under the flat
+# $EXT_BUILD_DEPS/lib directory, exactly like :openblas_lib_bazel on Linux.
+cc_library(
+    name = "openblas_lib_cmake_bazel",
+    srcs = [],
+    deps = [
+        ":openblas_lib_cmake",
+    ],
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
 # ---------------------------------------------------------------------------
 # SuperLU
 # ---------------------------------------------------------------------------
@@ -105,6 +170,14 @@ cmake(
         "//:macos": {
             "TPL_BLAS_LIBRARIES": "-framework Accelerate",
         },
+        "//:windows": {
+            # Same flat layout as Linux, via :openblas_lib_cmake_bazel.
+            "TPL_BLAS_LIBRARIES": "$EXT_BUILD_DEPS/lib/libopenblas.a",
+            # SuperLU builds its examples/tests by default; they are not needed
+            # and only add link-time failure modes.
+            "enable_examples": "OFF",
+            "enable_tests": "OFF",
+        },
         "//conditions:default": {
             # deps ":openblas_lib_bazel" will be copied to "$EXT_BUILD_DEPS"
             # The directory structure of ":openblas_lib_bazel" are retained,
@@ -114,8 +187,10 @@ cmake(
     }),
     lib_source = "@superlu//:all_srcs",
     out_static_libs = ["libsuperlu.a"],
+    env = WINDOWS_CMAKE_ENV,
     deps = select({
         "//:macos": [],
+        "//:windows": [":openblas_lib_cmake_bazel"],
         "//conditions:default": [
             # cannot directly use ":openblas_lib",
             # need bridged through a `cc_library` containing ":openblas_lib"
@@ -124,6 +199,8 @@ cmake(
     }),
     linkopts = select({
         "//:macos": ["-framework Accelerate"],
+        # OpenBLAS on Windows uses native threads; no -lpthread needed.
+        "//:windows": [],
         "//conditions:default": ["-lpthread"],
     }),
 )
@@ -140,8 +217,10 @@ cmake(
     },
     lib_source = "@armadillo//:all_srcs",
     out_static_libs = ["libarmadillo.a"],
+    env = WINDOWS_CMAKE_ENV,
     deps = select({
         "//:macos": [],
+        "//:windows": [":openblas_lib_cmake_bazel"],
         "//conditions:default": [":openblas_lib_bazel"],
     }),
     copts =[
@@ -150,6 +229,8 @@ cmake(
     linkopts = select({
         # Accelerate provides both BLAS and LAPACK on macOS.
         "//:macos": ["-framework Accelerate"],
+        # Windows: OpenBLAS is built with C_LAPACK, so no Fortran runtime.
+        "//:windows": [],
         # GFORTRAN_LINKOPTS is generated by //tools:gfortran_detect.bzl.
         # On Linux it is typically just ["-lgfortran"].
         "//conditions:default": GFORTRAN_LINKOPTS,
@@ -219,7 +300,41 @@ configure_make(
     includes = [
         "z_lib/include",
         "libaec/include",
-    ]
+    ],
+    # autotools build; Windows uses :hdf5_lib_cmake below.
+    target_compatible_with = NOT_WINDOWS,
+)
+
+# HDF5 on Windows: CMake build, without szip (same trade-off as macOS above:
+# MATLAB v7.3 files use DEFLATE).
+cmake(
+    name = "hdf5_lib_cmake",
+    cache_entries = {
+        "BUILD_SHARED_LIBS": "OFF",
+        "BUILD_STATIC_LIBS": "ON",
+        # Defaults are ON; we only need the C library.
+        "BUILD_TESTING": "OFF",
+        "HDF5_BUILD_EXAMPLES": "OFF",
+        "HDF5_BUILD_TOOLS": "OFF",
+        "HDF5_BUILD_HL_LIB": "OFF",
+        "HDF5_ENABLE_Z_LIB_SUPPORT": "ON",
+        "HDF5_ENABLE_SZIP_SUPPORT": "OFF",
+        # Foreign-cc dependencies are installed under $EXT_BUILD_DEPS/<target>/
+        # (not merged into $EXT_BUILD_DEPS/lib), so point FindZLIB at it.
+        "ZLIB_ROOT": "$EXT_BUILD_DEPS/z_lib",
+        # zlib's CMake build also produces a shared import library on MinGW;
+        # make sure the static one is picked.
+        "ZLIB_USE_STATIC_LIBS": "ON",
+    },
+    lib_source = "@hdf5//:all_srcs",
+    out_static_libs = ["libhdf5.a"],
+    deps = [":z_lib"],
+    env = WINDOWS_CMAKE_ENV,
+    # HDF5 builds as -std=gnu99 and uses vasprintf(), which mingw-w64's stdio.h
+    # only declares under _GNU_SOURCE (HDF5's CMake adds it on Linux, not on
+    # MinGW); GCC 14+ rejects the resulting implicit declaration.
+    copts = ["-D_GNU_SOURCE"],
+    target_compatible_with = ["@platforms//os:windows"],
 )
 
 # ---------------------------------------------------------------------------
@@ -232,8 +347,14 @@ cmake(
         "BUILD_SHARED_LIBS": "OFF",
     },
     lib_source = "@zlib//:all_srcs",
-    out_static_libs = ["libz.a"],
-    copts = ["-fPIC"] # this is necessary otherwise will cause hdf5 build to complain
+    out_static_libs = select({
+        # zlib's CMake build only names the static library "libz.a" on UNIX;
+        # on MinGW it is "libzlibstatic.a".
+        "//:windows": ["libzlibstatic.a"],
+        "//conditions:default": ["libz.a"],
+    }),
+    copts = ["-fPIC"], # this is necessary otherwise will cause hdf5 build to complain
+    env = WINDOWS_CMAKE_ENV,
 )
 
 # ---------------------------------------------------------------------------
@@ -250,6 +371,8 @@ cmake(
         "libaec.a",
         "libsz.a",
         ],
+    # Only needed by the autotools HDF5 build; Windows builds HDF5 without szip.
+    target_compatible_with = NOT_WINDOWS,
 )
 
 # ---------------------------------------------------------------------------
@@ -295,6 +418,43 @@ configure_make(
     }),
     out_static_libs = ["libmatio.a"],
     linkopts = ["-lpthread"],
+    # autotools build; Windows uses :libmatio_lib_cmake below.
+    target_compatible_with = NOT_WINDOWS,
+)
+
+# libmatio on Windows: CMake build.  Consumers select between this and
+# :libmatio_lib with
+#   select({"//:windows": ["//:libmatio_lib_cmake"],
+#           "//conditions:default": ["//:libmatio_lib"]})
+cmake(
+    name = "libmatio_lib_cmake",
+    cache_entries = {
+        # matio ignores BUILD_SHARED_LIBS; MATIO_SHARED defaults to ON.
+        "MATIO_SHARED": "OFF",
+        "MATIO_WITH_HDF5": "ON",
+        "MATIO_WITH_ZLIB": "ON",
+        "MATIO_MAT73": "ON",
+        "MATIO_EXTENDED_SPARSE": "ON",
+        # Same as `--with-default-file-ver=7.3` in the autotools build.
+        "MATIO_DEFAULT_FILE_VERSION": "7.3",
+        # If libm is found, matio links "m c"; MinGW has no libc.a, so its own
+        # matdump/test_mat tools fail to link ("cannot find -lc").  Presetting
+        # the cached check result avoids that; MinGW provides the math
+        # functions without -lm.
+        "HAVE_LIBM": "OFF",
+        # Foreign-cc dependencies live in $EXT_BUILD_DEPS/<target>/ .
+        "HDF5_ROOT": "$EXT_BUILD_DEPS/hdf5_lib_cmake",
+        "ZLIB_ROOT": "$EXT_BUILD_DEPS/z_lib",
+        "ZLIB_USE_STATIC_LIBS": "ON",
+    },
+    lib_source = "@libmatio//:all_srcs",
+    out_static_libs = ["libmatio.a"],
+    deps = [
+        ":hdf5_lib_cmake",
+        ":z_lib",
+    ],
+    env = WINDOWS_CMAKE_ENV,
+    target_compatible_with = ["@platforms//os:windows"],
 )
 
 # ---------------------------------------------------------------------------
@@ -303,10 +463,19 @@ configure_make(
 
 cmake(
     name = "libjsoncpp",
-    cache_entries = {
-        "BUILD_SHARED_LIBS": "OFF",
-    },
+    cache_entries = select({
+        # Windows: skip jsoncpp's own test programs (not needed).
+        "//:windows": {
+            "BUILD_SHARED_LIBS": "OFF",
+            "JSONCPP_WITH_TESTS": "OFF",
+            "JSONCPP_WITH_POST_BUILD_UNITTEST": "OFF",
+        },
+        "//conditions:default": {
+            "BUILD_SHARED_LIBS": "OFF",
+        },
+    }),
     lib_source = "@jsoncpp//:all_srcs",
+    env = WINDOWS_CMAKE_ENV,
     out_static_libs = [
         "libjsoncpp.a",
         ],

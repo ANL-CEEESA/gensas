@@ -82,9 +82,10 @@ cc_binary(
     srcs = [
         "TestLibMatio.cc",
     ],
-    deps = [
-        "//:libmatio_lib",
-    ]
+    deps = select({
+        "//:windows": ["//:libmatio_lib_cmake"],
+        "//conditions:default": ["//:libmatio_lib"],
+    })
 )
 
 cc_binary(

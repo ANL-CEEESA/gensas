@@ -5,6 +5,12 @@ This gensas repository uses [Bazel](https://bazel.build/) as the build tool. The
 
 There are also [other ways to install Bazel](https://bazel.build/start).
 
+### Prerequisites by platform
+
+* **Linux**: a C/C++ toolchain, `gfortran` and `cmake`.
+* **macOS**: Xcode command line tools and `brew install gcc cmake`.
+* **Windows**: MSYS2 with the MinGW-w64 toolchain, see [Windows](#windows) below.
+
 ### Build Gensas
 At the root of the repository, execute command:
 ```shell
@@ -63,3 +69,45 @@ Step=1, added=0.1, (maxDiff<1e-06).
 Computation No.1
 Computation time: 89.9048 s.
 ```
+
+### Windows
+
+Windows is built natively with the MSYS2 MinGW-w64 GCC toolchain (not MSVC); it
+has been verified with MSYS2 GCC 16.2 and Bazel 7.0.0.
+Dependencies that use autotools on Linux/macOS (HDF5, libmatio) and `make`
+(OpenBLAS) are built with CMake on Windows, and OpenBLAS is built with
+`C_LAPACK=ON`, so **no Fortran compiler is needed on Windows**.
+
+1. Install [MSYS2](https://www.msys2.org/) to `C:\msys64` and, from an
+   "MSYS2 MINGW64" shell, the toolchain:
+   ```shell
+   pacman -S --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake \
+                      mingw-w64-x86_64-ninja mingw-w64-x86_64-make make
+   ```
+2. Install Bazel (Bazelisk) for Windows. The repository pins Bazel 7.0.0
+   (`.bazelversion`).
+3. From the **MSYS2 MINGW64 shell**, at the repository root:
+   ```shell
+   export MSYS2_ARG_CONV_EXCL="*"   # stop MSYS from rewriting Bazel's arguments
+   bazel build //app:app
+   ```
+   (`rules_foreign_cc` assumes an MSYS2 shell on Windows.) The Windows settings
+   in `.bazelrc` (`build:windows`) are applied automatically. If MSYS2 is not in
+   `C:\msys64`, copy those lines into `.bazelrc.local` and adjust the paths.
+4. Run, for example:
+   ```shell
+   bazel-bin/app/app.exe -p -f resources/psat_mat/d_014_ind_zip1.mat -s 0.5 -l 28 -d 1e-5 -o out.mat
+   ```
+   or run `bash scripts/run_integration_test.sh`.
+
+Use `bazel build //app:app` rather than `//...` on Windows: targets that only make
+sense with the autotools build (e.g. `//:hdf5_lib`, `//:libaec`, `//:pcre`) are
+marked incompatible and are skipped.
+
+Troubleshooting:
+
+* CMake errors about `cmake_minimum_required`: the `.bazelrc` sets
+  `CMAKE_POLICY_VERSION_MINIMUM=3.5` for this; make sure the Windows section is
+  not overridden.
+* `app.exe` fails to start with missing DLL errors: add
+  `C:\msys64\mingw64\bin` to `PATH`, or build with `--linkopt=-static`.

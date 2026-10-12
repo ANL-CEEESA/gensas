@@ -111,7 +111,10 @@ cc_library(
     deps = [
         ":sas_lexico_lib",
         "//util:abstract_che_calculator_lib",
-        "//:libmatio_lib",
+    ] + select({
+        "//:windows": ["//:libmatio_lib_cmake"],
+        "//conditions:default": ["//:libmatio_lib"],
+    }) + [
         "//:superlu_lib",
         "//:libjsoncpp",
     ]

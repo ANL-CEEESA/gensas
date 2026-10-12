@@ -25,5 +25,41 @@ build:macos --action_env=PATH=/opt/homebrew/bin:/opt/homebrew/opt/gcc/bin:/usr/l
 # safety measure for any target the rule might miss.
 build:macos --host_action_env=PATH=/opt/homebrew/bin:/opt/homebrew/opt/gcc/bin:/usr/local/bin:/usr/local/opt/gcc/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
+# Windows: MSYS2 + MinGW-w64 GCC toolchain (see doc/Installation.md, "Windows").
+#
+# By default Bazel on Windows uses MSVC, which cannot be mixed with the
+# MinGW-built static libraries produced by the CMake recipes in BUILD.bazel.
+# These lines select Bazel's MinGW toolchain instead, using the recipe from the
+# Bazel Windows docs (platform with the compiler constraint + extra toolchain +
+# extra execution platform).  MSYS2 is assumed at C:/msys64; if it lives
+# elsewhere, override these lines in .bazelrc.local.
+build:windows --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows_mingw
+build:windows --extra_execution_platforms=//tools:x64_windows-mingw-gcc
+# Bazel locates the MinGW GCC relative to bash.exe: <msys root>/mingw64/bin.
+build:windows --repo_env=BAZEL_SH=C:/msys64/usr/bin/bash.exe
+build:windows --action_env=BAZEL_SH=C:/msys64/usr/bin/bash.exe
+# As on macOS, foreign_cc (cmake) actions do not inherit the shell PATH.
+build:windows --action_env=PATH=C:/msys64/mingw64/bin;C:/msys64/usr/bin;C:/Windows/System32;C:/Windows
+build:windows --host_action_env=PATH=C:/msys64/mingw64/bin;C:/msys64/usr/bin;C:/Windows/System32;C:/Windows
+# GCC 15+ (current MSYS2) defaults to C23, where `f()` means "no arguments";
+# the older C code of OpenBLAS (f2c LAPACK), HDF5, SuperLU, ... then fails to
+# compile ("too many arguments to function").  rules_foreign_cc forwards
+# --conlyopt to the C flags of the CMake-built dependencies (not to C++).
+build:windows --conlyopt=-std=gnu17
+# GCC 14+ also turned several old-C diagnostics into hard errors.  The bundled
+# third-party C code (OpenBLAS' f2c LAPACK, HDF5, ...) predates that; keep these
+# as warnings, as they were with the GCC versions those libraries target.  E.g.
+# OpenBLAS 0.3.23 passes a float* to a double helper in spstrf/cpstrf and calls
+# XBLAS helpers it never provides (both in routines this application does not use).
+build:windows --conlyopt=-Wno-error=implicit-function-declaration
+build:windows --conlyopt=-Wno-error=incompatible-pointer-types
+build:windows --conlyopt=-Wno-error=int-conversion
+build:windows --conlyopt=-Wno-error=implicit-int
+# Recent CMake (4.x, as shipped by MSYS2) rejects the old cmake_minimum_required
+# of several dependencies (zlib, OpenBLAS, ...) unless told otherwise.  Ignored
+# by older CMake versions.
+build:windows --action_env=CMAKE_POLICY_VERSION_MINIMUM=3.5
+build:windows --host_action_env=CMAKE_POLICY_VERSION_MINIMUM=3.5
+
 # Optionally use private .bazelrc.local
 try-import %workspace%/.bazelrc.local
