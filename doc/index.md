@@ -8,6 +8,9 @@
 
 Backed by the SAS approach, the GenSAS tool provides much better convergence than the tools using traditional Newton-type equation solvers. Moreover, due to the analytical nature, GenSAS provides model-adaptive high-accuracy approximation, which brings significantly extended effective range for power grid analysis. PowerSAS has been used to solve large-scale system cases with 200,000+ buses.
 
+### Build and run
+GenSAS builds with Bazel on **Linux, macOS and Windows** (MSYS2 MinGW-w64). See [Installation](Installation.md) for prerequisites and per-OS instructions, and [Usage](Usage.md) for command-line options.
+
 ### Companion Project
 PowerSAS.m -- SAS-based power grid analysis toolbox for Matlab/GNU Octave users. 
 
