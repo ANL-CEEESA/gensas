@@ -135,6 +135,11 @@ cmake(
         "BUILD_TESTING": "OFF",
         "C_LAPACK": "ON",
         "NOFORTRAN": "1",
+        # Pin the kernel set instead of auto-detecting the build machine's CPU:
+        # OpenBLAS 0.3.23 mis-detects newer CPUs (e.g. on GitHub runners) and then
+        # fails to compile getarch_2nd.  HASWELL = AVX2, which every x86-64 CPU
+        # since ~2013 supports.
+        "TARGET": "HASWELL",
     },
     lib_source = "@openblas//:all_srcs",
     out_static_libs = ["libopenblas.a"],
