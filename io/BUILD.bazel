@@ -47,8 +47,10 @@ cc_library(
     deps = [
         ":che_io_defs_header",
         ":che_data_format_lib",
-        "//:libmatio_lib",
-    ]
+    ] + select({
+        "//:windows": ["//:libmatio_lib_cmake"],
+        "//conditions:default": ["//:libmatio_lib"],
+    })
 )
 
 cc_library(
