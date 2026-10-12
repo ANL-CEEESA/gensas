@@ -104,8 +104,14 @@ make(
         "@openblas//:README.md",
     ],
     out_data_dirs = ["share"],
-    # No extra args needed on Linux (the verified working platform).
-    args = [],
+    # Pin the x86-64 kernel set instead of auto-detecting the build machine's CPU:
+    # OpenBLAS 0.3.23 does not know AMD Zen 5 (family 0x1A, now common on CI
+    # runners) and then fails in getarch_2nd.  HASWELL = AVX2, supported by every
+    # x86-64 CPU since ~2013.  Other CPUs (e.g. aarch64) keep auto-detection.
+    args = select({
+        "@platforms//cpu:x86_64": ["TARGET=HASWELL"],
+        "//conditions:default": [],
+    }),
     # macOS uses :macos_accelerate instead; mark incompatible so
     # `bazel build //...` skips this target on non-Linux platforms.
     target_compatible_with = ["@platforms//os:linux"],
